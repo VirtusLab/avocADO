@@ -10,7 +10,6 @@ lazy val avocado = project
 
     scalacOptions ++= Seq(
       "-Xcheck-macros"
-      // "-Xprint:typer"
     ),
 
     libraryDependencies ++= Seq(
