@@ -60,7 +60,7 @@ class ADOImpl(using Quotes) {
   }
 
   private def zipExprs(toZip: List[(Binding, Set[String])]): Term = {
-    toZip.tail.foldRight(toZip.head._1.tree) {
+    toZip.init.foldRight(toZip.last._1.tree) {
       case ((binding, deps), acc) =>
         val term: Select = binding.tree.select(binding.tree.tpe.typeSymbol.methodMember("zip").head)
         val tpe = extractTypeFromApplicative(acc.tpe)
