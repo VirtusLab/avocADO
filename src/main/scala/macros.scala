@@ -51,8 +51,7 @@ class ADOImpl(using Quotes) {
     }
 
     val (toZip, rest) = splitToZip(bindings)
-    val r = go(rest, toZip.map(_._1.valdef), zipExprs(toZip))
-    r
+    go(rest, toZip.map(_._1.valdef), zipExprs(toZip))
   }
 
   private def extractTypeFromApplicative(typeRepr: TypeRepr): TypeRepr = typeRepr match {
@@ -150,7 +149,7 @@ class ADOImpl(using Quotes) {
                 CaseDef(
                   pattern,
                   None,
-                  body.alphaRename(binds)
+                  body.alphaRename(binds).changeOwner(defdefSymbol)
                 )
               )
             )
