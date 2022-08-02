@@ -58,12 +58,23 @@ class ADOImpl(using Quotes) {
     case AppliedType(_, args) => args.last
   }
 
+  private def doZip(receiver: Term, valdef: ValDef, arg: Term): Term = {
+    val receiverTypeSymbol = receiver.tpe.typeSymbol
+    val argTpe = extractTypeFromApplicative(arg.tpe)
+    if receiverTypeSymbol.methodMember("zip").nonEmpty then
+      val term: Select = receiver.select(receiverTypeSymbol.methodMember("zip").head)
+      term.appliedToTypes(List(valdef.tpt.tpe.widen, argTpe.widen)).appliedTo(arg)
+    else if receiverTypeSymbol.methodMember("both").nonEmpty then
+      val term: Select = receiver.select(receiverTypeSymbol.methodMember("both").head)
+      term.appliedToTypes(List(argTpe.widen)).appliedTo(arg)
+    else
+      throwGenericError()
+  }
+
   private def zipExprs(toZip: List[(Binding, Set[String])]): Term = {
     toZip.init.foldRight(toZip.last._1.tree) {
       case ((binding, deps), acc) =>
-        val term: Select = binding.tree.select(binding.tree.tpe.typeSymbol.methodMember("zip").head)
-        val tpe = extractTypeFromApplicative(acc.tpe)
-        term.appliedToTypes(List(binding.valdef.tpt.tpe.widen, tpe.widen)).appliedTo(acc)
+        doZip(binding.tree, binding.valdef, acc)
     }
   }
 
