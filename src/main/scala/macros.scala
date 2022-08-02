@@ -117,14 +117,21 @@ class ADOImpl(using Quotes) {
         )
     }
 
+    def makeBind(valdef: ValDef, owner: Symbol): (Tree, Map[String, Symbol]) = {
+      if valdef.name == "_" then
+        Wildcard() -> Map.empty
+      else
+        val sym = Symbol.newBind(owner, valdef.name, Flags.EmptyFlags, valdef.tpt.tpe)
+        Bind(sym, Wildcard()) -> Map(valdef.name -> sym)
+    }
+
     def unapplies(zipped: List[ValDef], owner: Symbol): (Tree, Map[String, Symbol]) = zipped match {
       case Nil =>
         throwGenericError()
       case head :: Nil =>
-        val sym = Symbol.newBind(owner, head.name, Flags.EmptyFlags, head.tpt.tpe)
-        Bind(sym, Wildcard()) -> Map(head.name -> sym)
+        makeBind(head, owner)
       case head :: zipped =>
-        val sym = Symbol.newBind(owner, head.name, Flags.EmptyFlags, head.tpt.tpe)
+        val (bind, renames) = makeBind(head, owner)
         val (tree, binds) = unapplies(zipped, owner)
         Unapply(
           TypeApply(
@@ -136,10 +143,10 @@ class ADOImpl(using Quotes) {
           ),
           List.empty,
           List(
-            Bind(sym, Wildcard()),
+            bind,
             tree
           )
-        ) -> (binds + (head.name -> sym))
+        ) -> (binds ++ renames)
     }
 
     val defdefSymbol = Symbol.newMethod(
@@ -175,11 +182,21 @@ class ADOImpl(using Quotes) {
   def throwGenericError(): Nothing =
     report.errorAndAbort("Oopsie, wrong argument passed to ado!")
 
+  //TODO(kπ) this can probably give false positives too
+  private def extractBodyAndValDef(body: Term, valdef: ValDef): (Term, ValDef) = body match {
+    case Match(Typed(Ident(name), tpt), List(CaseDef(Ident(name1), _, term))) if name == valdef.name && name1 == "_" =>
+      term -> ValDef.copy(valdef)(name = "_", tpt = valdef.tpt, rhs = valdef.rhs)
+    case _ =>
+      body -> valdef
+  }
+
   private def toBindings(exprTerm: Term, acc: List[Binding] = List.empty): (List[Binding], Term) = exprTerm match
     case Apply(TypeApply(Select(expr, "flatMap"), _), List(Block(List(DefDef(_, List(TermParamClause(List(valdef))), _, Some(rest))), _))) =>
-      toBindings(rest, Binding(valdef, expr) :: acc)
+      val (body, vd) = extractBodyAndValDef(rest, valdef)
+      toBindings(body, Binding(vd, expr) :: acc)
     case Apply(TypeApply(Select(expr, "map"), _), List(Block(List(DefDef(_, List(TermParamClause(List(valdef))), _, Some(rest))), _))) =>
-      (Binding(valdef, expr) :: acc).reverse -> rest
+      val (body, vd) = extractBodyAndValDef(rest, valdef)
+      (Binding(vd, expr) :: acc).reverse -> body
 
   //TODO(kπ) This can also lead to false positives
   extension [T <: Tree](tree: T) private def alphaRename(renames: Map[String, Symbol]): T = {
@@ -190,7 +207,7 @@ class ADOImpl(using Quotes) {
         case _ =>
           super.transformTerm(tree)(owner)
       }
-    treeMap.transformTree(tree)(tree.symbol.owner).asInstanceOf[T]
+    treeMap.transformTree(tree)(Symbol.spliceOwner).asInstanceOf[T]
   }
 
   //TODO(kπ) This can have false positives (non free variables that shadow binding variables) good enough for now
