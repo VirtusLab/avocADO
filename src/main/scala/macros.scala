@@ -41,13 +41,13 @@ class ADOImpl(using Quotes) {
     def go(bindings: List[(Binding, Set[String])], zipped: List[ValDef], acc: Term): Term = bindings match {
       case Nil =>
         val term: Select = acc.select(acc.tpe.typeSymbol.methodMember("map").head)
-        term.appliedToType(res.tpe).appliedTo(funForZipped(zipped, res, Symbol.spliceOwner))
+        term.appliedToType(res.tpe.widen).appliedTo(funForZipped(zipped, res, Symbol.spliceOwner))
       case _ =>
         val term: Select = acc.select(acc.tpe.typeSymbol.methodMember("flatMap").head)
         val (toZip, rest) = splitToZip(bindings)
         val body = go(rest, toZip.map(_._1.valdef), zipExprs(toZip))
         val tpe = extractTypeFromApplicative(body.tpe)
-        term.appliedToType(tpe).appliedTo(funForZipped(zipped, body, Symbol.spliceOwner))
+        term.appliedToType(tpe.widen).appliedTo(funForZipped(zipped, body, Symbol.spliceOwner))
     }
 
     val (toZip, rest) = splitToZip(bindings)
@@ -55,7 +55,7 @@ class ADOImpl(using Quotes) {
   }
 
   private def extractTypeFromApplicative(typeRepr: TypeRepr): TypeRepr = typeRepr match {
-    case AppliedType(_, List(tpe)) => tpe
+    case AppliedType(_, args) => args.last
   }
 
   private def zipExprs(toZip: List[(Binding, Set[String])]): Term = {
@@ -63,7 +63,7 @@ class ADOImpl(using Quotes) {
       case ((binding, deps), acc) =>
         val term: Select = binding.tree.select(binding.tree.tpe.typeSymbol.methodMember("zip").head)
         val tpe = extractTypeFromApplicative(acc.tpe)
-        term.appliedToTypes(List(binding.valdef.tpt.tpe, tpe)).appliedTo(acc)
+        term.appliedToTypes(List(binding.valdef.tpt.tpe.widen, tpe.widen)).appliedTo(acc)
     }
   }
 
@@ -134,7 +134,7 @@ class ADOImpl(using Quotes) {
     val defdefSymbol = Symbol.newMethod(
       owner,
       "$anonfun",
-      MethodType(List("syth$x$"))(_ => List(typeReprOfTuples(zipped)), _ => body.tpe)
+      MethodType(List("syth$x$"))(_ => List(typeReprOfTuples(zipped)), _ => body.tpe.widen)
     )
 
     val (pattern, binds) = unapplies(zipped, defdefSymbol)
