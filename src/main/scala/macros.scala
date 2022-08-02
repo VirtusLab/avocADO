@@ -54,7 +54,7 @@ class ADOImpl(using Quotes) {
     go(rest, toZip.map(_._1.valdef), zipExprs(toZip))
   }
 
-  private def extractTypeFromApplicative(typeRepr: TypeRepr): TypeRepr = typeRepr match {
+  private def extractTypeFromApplicative(typeRepr: TypeRepr): TypeRepr = typeRepr.widen match {
     case AppliedType(_, args) => args.last
   }
 
