@@ -1,8 +1,8 @@
-package avacado.examples
+package avacado.tests
 
 import avocado.*
 
-class tests extends munit.FunSuite {
+class OptionTests extends munit.FunSuite {
 
   test("correctly expand a simple option comprehension 1") {
     val res = ado {
