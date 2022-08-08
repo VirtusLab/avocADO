@@ -29,16 +29,16 @@ class ADOImpl(using Quotes) {
 
     val bindingVals: Set[ValDef] = bindings.map(_.valdef).toSet
 
-    val bindingsWithDependencies: List[(Binding, Set[String])] = bindings.map {
+    val bindingsWithDependencies: List[(Binding, Set[Symbol])] = bindings.map {
       case binding => (binding, getBindingDependencies(binding.tree, bindingVals))
     }
 
     connectBindings(bindingsWithDependencies, res).asExprOf[F[A]]
   }
 
-  private def connectBindings(bindings: List[(Binding, Set[String])], res: Term): Tree = {
+  private def connectBindings(bindings: List[(Binding, Set[Symbol])], res: Term): Tree = {
 
-    def go(bindings: List[(Binding, Set[String])], zipped: List[ValDef], acc: Term): Term = bindings match {
+    def go(bindings: List[(Binding, Set[Symbol])], zipped: List[ValDef], acc: Term): Term = bindings match {
       case Nil =>
         val term: Select = acc.select(acc.tpe.typeSymbol.methodMember("map").head)
         term.appliedToType(res.tpe.widen).appliedTo(funForZipped(zipped, res, Symbol.spliceOwner))
@@ -71,24 +71,24 @@ class ADOImpl(using Quotes) {
       throwGenericError()
   }
 
-  private def zipExprs(toZip: List[(Binding, Set[String])]): Term = {
+  private def zipExprs(toZip: List[(Binding, Set[Symbol])]): Term = {
     toZip.init.foldRight(toZip.last._1.tree) {
-      case ((binding, deps), acc) =>
+      case ((binding, _), acc) =>
         doZip(binding.tree, binding.valdef, acc)
     }
   }
 
-  private def splitToZip(bindings: List[(Binding, Set[String])]): (List[(Binding, Set[String])], List[(Binding, Set[String])]) = {
+  private def splitToZip(bindings: List[(Binding, Set[Symbol])]): (List[(Binding, Set[Symbol])], List[(Binding, Set[Symbol])]) = {
     @tailrec
     def go(
-      toZip: List[(Binding, Set[String])],
-      dropped: List[(Binding, Set[String])],
-      bindings: List[(Binding, Set[String])]
-    ): (List[(Binding, Set[String])], List[(Binding, Set[String])]) = bindings match {
+      toZip: List[(Binding, Set[Symbol])],
+      dropped: List[(Binding, Set[Symbol])],
+      bindings: List[(Binding, Set[Symbol])]
+    ): (List[(Binding, Set[Symbol])], List[(Binding, Set[Symbol])]) = bindings match {
       case Nil =>
         (toZip, dropped)
       case head :: bindings =>
-        val (take, drop) = bindings.span(!_._2.contains(head._1.valdef.name))
+        val (take, drop) = bindings.span(!_._2.contains(head._1.valdef.symbol))
         go(toZip :+ head, drop ++ dropped, take)
     }
 
@@ -182,7 +182,7 @@ class ADOImpl(using Quotes) {
   def throwGenericError(): Nothing =
     report.errorAndAbort("Oopsie, wrong argument passed to ado!")
 
-  //TODO(kπ) this can probably give false positives too
+  //TODO(kπ) this can probably give false positives
   private def extractBodyAndValDef(body: Term, valdef: ValDef): (Term, ValDef) = body match {
     case Match(Typed(Ident(name), tpt), List(CaseDef(Ident(name1), _, term))) if name == valdef.name && name1 == "_" =>
       term -> ValDef.copy(valdef)(name = "_", tpt = valdef.tpt, rhs = valdef.rhs)
@@ -209,16 +209,15 @@ class ADOImpl(using Quotes) {
     treeMap.transformTree(tree)(Symbol.spliceOwner).asInstanceOf[T]
   }
 
-  //TODO(kπ) This can have false positives (non free variables that shadow binding variables) good enough for now
-  private def getBindingDependencies(tree: Tree, bindingVals: Set[ValDef] = Set.empty): Set[String] = {
-    object accumulator extends TreeAccumulator[Set[String]] {
-      def foldTree(acc: Set[String], tree: Tree)(owner: Symbol): Set[String] = tree match {
-        case Ident(name) => acc + name
+  private def getBindingDependencies(tree: Tree, bindingVals: Set[ValDef] = Set.empty): Set[Symbol] = {
+    object accumulator extends TreeAccumulator[Set[Symbol]] {
+      def foldTree(acc: Set[Symbol], tree: Tree)(owner: Symbol): Set[Symbol] = tree match {
+        case ident: Ident => acc + ident.symbol
         case _ => foldOverTree(acc, tree)(owner)
       }
     }
     accumulator.foldTree(Set.empty, tree)(tree.symbol.owner)
-      .intersect(bindingVals.map(_.name))
+      .intersect(bindingVals.map(_.symbol))
   }
 
 }
