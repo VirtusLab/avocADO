@@ -117,15 +117,15 @@ class ADOImpl(using Quotes) {
         )
     }
 
-    def makeBind(valdef: ValDef, owner: Symbol): (Tree, Map[String, Symbol]) = {
+    def makeBind(valdef: ValDef, owner: Symbol): (Tree, Map[Symbol, Symbol]) = {
       if valdef.name == "_" then
         Wildcard() -> Map.empty
       else
         val sym = Symbol.newBind(owner, valdef.name, Flags.EmptyFlags, valdef.tpt.tpe)
-        Bind(sym, Wildcard()) -> Map(valdef.name -> sym)
+        Bind(sym, Wildcard()) -> Map(valdef.symbol -> sym)
     }
 
-    def unapplies(zipped: List[ValDef], owner: Symbol): (Tree, Map[String, Symbol]) = zipped match {
+    def unapplies(zipped: List[ValDef], owner: Symbol): (Tree, Map[Symbol, Symbol]) = zipped match {
       case Nil =>
         throwGenericError()
       case head :: Nil =>
@@ -198,12 +198,11 @@ class ADOImpl(using Quotes) {
       val (body, vd) = extractBodyAndValDef(rest, valdef)
       (Binding(vd, expr) :: acc).reverse -> body
 
-  //TODO(kπ) This can also lead to false positives
-  extension [T <: Tree](tree: T) private def alphaRename(renames: Map[String, Symbol]): T = {
+  extension [T <: Tree](tree: T) private def alphaRename(renames: Map[Symbol, Symbol]): T = {
     object treeMap extends TreeMap:
       override def transformTerm(tree: Term)(owner: Symbol): Term = tree match {
-        case Ident(name) if renames.contains(name) =>
-          Ident(renames(name).termRef)
+        case ident: Ident if renames.contains(ident.symbol) =>
+          Ident(renames(ident.symbol).termRef)
         case _ =>
           super.transformTerm(tree)(owner)
       }
