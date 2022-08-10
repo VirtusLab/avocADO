@@ -7,6 +7,11 @@ import cats.effect.unsafe.implicits._
 
 class CatsEffectTests extends munit.FunSuite {
 
+  given Applicative[IO] = new Applicative[IO] {
+    def pure[A](a: A): IO[A] = IO(a)
+    def zip[A, B](fa: IO[A], fb: IO[B]): IO[(A, B)] = fa.both(fb)
+  }
+
   def testWithTimeLimit(name: String, maxMillis: Long)(body: => Unit): Unit = {
     test(name) {
       val start = System.currentTimeMillis()

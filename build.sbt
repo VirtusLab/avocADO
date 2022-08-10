@@ -1,4 +1,4 @@
-val scala3 = "3.2.0-RC1"
+val scala3 = "3.2.0-RC3"
 
 lazy val avocado = project
   .in(file("."))

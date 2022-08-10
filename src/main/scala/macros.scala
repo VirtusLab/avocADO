@@ -5,8 +5,8 @@ import scala.quoted.*
 
 object macros {
 
-  def adoImpl[F[_]: Type, A: Type](compExpr: Expr[F[A]])(using Quotes): Expr[F[A]] =
-    ADOImpl(using quotes).adoImpl(compExpr)
+  def adoImpl[F[_]: Type, A: Type](compExpr: Expr[F[A]], apExpr: Expr[Applicative[F]])(using Quotes): Expr[F[A]] =
+    ADOImpl(using quotes).adoImpl(compExpr, apExpr)
 
 }
 
@@ -18,7 +18,7 @@ class ADOImpl(using Quotes) {
     tree: Term
   )
 
-  def adoImpl[F[_]: Type, A: Type](compExpr: Expr[F[A]])(using Quotes): Expr[F[A]] = {
+  def adoImpl[F[_]: Type, A: Type](compExpr: Expr[F[A]], apExpr: Expr[Applicative[F]])(using Quotes): Expr[F[A]] = {
     val exprTree = compExpr.asTerm match
       case Inlined(_, _, tree) => tree match
         case Block(Nil, expr) => expr
@@ -33,10 +33,10 @@ class ADOImpl(using Quotes) {
       case binding => (binding, getBindingDependencies(binding.tree, bindingVals))
     }
 
-    connectBindings(bindingsWithDependencies, res).asExprOf[F[A]]
+    connectBindings(bindingsWithDependencies, res, apExpr.asTerm).asExprOf[F[A]]
   }
 
-  private def connectBindings(bindings: List[(Binding, Set[Symbol])], res: Term): Tree = {
+  private def connectBindings(bindings: List[(Binding, Set[Symbol])], res: Term, ap: Term): Tree = {
 
     def go(bindings: List[(Binding, Set[Symbol])], zipped: List[ValDef], acc: Term): Term = bindings match {
       case Nil =>
@@ -45,36 +45,31 @@ class ADOImpl(using Quotes) {
       case _ =>
         val term: Select = acc.select(acc.tpe.typeSymbol.methodMember("flatMap").head)
         val (toZip, rest) = splitToZip(bindings)
-        val body = go(rest, toZip.map(_._1.valdef), zipExprs(toZip))
+        val body = go(rest, toZip.map(_._1.valdef), zipExprs(toZip, ap))
         val tpe = extractTypeFromApplicative(body.tpe)
         term.appliedToType(tpe.widen).appliedTo(funForZipped(zipped, body, Symbol.spliceOwner))
     }
 
     val (toZip, rest) = splitToZip(bindings)
-    go(rest, toZip.map(_._1.valdef), zipExprs(toZip))
+    go(rest, toZip.map(_._1.valdef), zipExprs(toZip, ap))
   }
 
   private def extractTypeFromApplicative(typeRepr: TypeRepr): TypeRepr = typeRepr.widen match {
     case AppliedType(_, args) => args.last
   }
 
-  private def doZip(receiver: Term, valdef: ValDef, arg: Term): Term = {
+  private def doZip(receiver: Term, valdef: ValDef, arg: Term, ap: Term): Term = {
     val receiverTypeSymbol = receiver.tpe.typeSymbol
     val argTpe = extractTypeFromApplicative(arg.tpe)
-    if receiverTypeSymbol.methodMember("zip").nonEmpty then
-      val term: Select = receiver.select(receiverTypeSymbol.methodMember("zip").head)
-      term.appliedToTypes(List(valdef.tpt.tpe.widen, argTpe.widen)).appliedTo(arg)
-    else if receiverTypeSymbol.methodMember("both").nonEmpty then
-      val term: Select = receiver.select(receiverTypeSymbol.methodMember("both").head)
-      term.appliedToTypes(List(argTpe.widen)).appliedTo(arg)
-    else
-      throwGenericError()
+    ap
+      .select(ap.tpe.typeSymbol.methodMember("zip").head)
+      .appliedToTypes(List(valdef.tpt.tpe.widen, argTpe.widen)).appliedTo(receiver, arg)
   }
 
-  private def zipExprs(toZip: List[(Binding, Set[Symbol])]): Term = {
+  private def zipExprs(toZip: List[(Binding, Set[Symbol])], ap: Term): Term = {
     toZip.init.foldRight(toZip.last._1.tree) {
       case ((binding, _), acc) =>
-        doZip(binding.tree, binding.valdef, acc)
+        doZip(binding.tree, binding.valdef, acc, ap)
     }
   }
 

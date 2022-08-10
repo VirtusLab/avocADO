@@ -4,6 +4,11 @@ import avocado.*
 
 class OptionTests extends munit.FunSuite {
 
+  given Applicative[Option] = new Applicative[Option] {
+    def pure[A](a: A): Option[A] = Some(a)
+    def zip[A, B](fa: Option[A], fb: Option[B]): Option[(A, B)] = fa.zip(fb)
+  }
+
   test("correctly expand a simple option comprehension 1") {
     val res = ado {
       for {
