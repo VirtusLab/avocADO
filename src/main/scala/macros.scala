@@ -15,7 +15,9 @@ class ADOImpl(using Quotes) {
 
   private case class Binding(
     valdef: ValDef,
-    tree: Term
+    tree: Term,
+    methodName: String,
+    typeArgs: List[TypeRepr]
   )
 
   def adoImpl[F[_]: Type, A: Type](compExpr: Expr[F[A]], apExpr: Expr[Applicative[F]])(using Quotes): Expr[F[A]] = {
@@ -38,20 +40,21 @@ class ADOImpl(using Quotes) {
 
   private def connectBindings(bindings: List[(Binding, Set[Symbol])], res: Term, ap: Term): Tree = {
 
-    def go(bindings: List[(Binding, Set[Symbol])], zipped: List[ValDef], acc: Term): Term = bindings match {
+    def go(bindings: List[(Binding, Set[Symbol])], zipped: List[ValDef], acc: Term, lastBinding: Binding): Term = bindings match {
       case Nil =>
-        val term: Select = acc.select(acc.tpe.typeSymbol.methodMember("map").head)
-        term.appliedToType(res.tpe.widen).appliedTo(funForZipped(zipped, res, Symbol.spliceOwner))
+        val term: Select = acc.select(acc.tpe.typeSymbol.methodMember(lastBinding.methodName).head)
+        val tpes = lastBinding.typeArgs.map(_.widen)
+        term.appliedToTypes(tpes).appliedTo(funForZipped(zipped, res, Symbol.spliceOwner))
       case _ =>
-        val term: Select = acc.select(acc.tpe.typeSymbol.methodMember("flatMap").head)
-        val (toZip, rest) = splitToZip(bindings)
-        val body = go(rest, toZip.map(_._1.valdef), zipExprs(toZip, ap))
-        val tpe = extractTypeFromApplicative(body.tpe)
-        term.appliedToType(tpe.widen).appliedTo(funForZipped(zipped, body, Symbol.spliceOwner))
+        val (toZip, rest, newLastBinding) = splitToZip(bindings)
+        val term: Select = acc.select(acc.tpe.typeSymbol.methodMember(lastBinding.methodName).head)
+        val body = go(rest, toZip.map(_._1.valdef), zipExprs(toZip, ap), newLastBinding)
+        val tpes = lastBinding.typeArgs.map(_.widen)
+        term.appliedToTypes(tpes).appliedTo(funForZipped(zipped, body, Symbol.spliceOwner))
     }
 
-    val (toZip, rest) = splitToZip(bindings)
-    go(rest, toZip.map(_._1.valdef), zipExprs(toZip, ap))
+    val (toZip, rest, lastMethod) = splitToZip(bindings)
+    go(rest, toZip.map(_._1.valdef), zipExprs(toZip, ap), lastMethod)
   }
 
   private def extractTypeFromApplicative(typeRepr: TypeRepr): TypeRepr = typeRepr.widen match {
@@ -73,21 +76,32 @@ class ADOImpl(using Quotes) {
     }
   }
 
-  private def splitToZip(bindings: List[(Binding, Set[Symbol])]): (List[(Binding, Set[Symbol])], List[(Binding, Set[Symbol])]) = {
+  private def splitToZip(bindings: List[(Binding, Set[Symbol])]): (List[(Binding, Set[Symbol])], List[(Binding, Set[Symbol])], Binding) = {
     @tailrec
     def go(
       toZip: List[(Binding, Set[Symbol])],
       dropped: List[(Binding, Set[Symbol])],
-      bindings: List[(Binding, Set[Symbol])]
-    ): (List[(Binding, Set[Symbol])], List[(Binding, Set[Symbol])]) = bindings match {
+      bindings: List[(Binding, Set[Symbol])],
+      lastBinding: Binding
+    ): (List[(Binding, Set[Symbol])], List[(Binding, Set[Symbol])], Binding) = bindings match {
       case Nil =>
-        (toZip, dropped)
+        (toZip, dropped, lastBinding)
       case head :: bindings =>
         val (take, drop) = bindings.span(!_._2.contains(head._1.valdef.symbol))
-        go(toZip :+ head, drop ++ dropped, take)
+        go(toZip :+ head, drop ++ dropped, take, head._1)
     }
 
-    go(List.empty, List.empty, bindings)
+    bindings match {
+      case head :: _ if head._1.methodName == "flatMap" =>
+        val (take, drop) = bindings.span(_._1.methodName == "flatMap")
+        val (take1, drop1) = if drop.nonEmpty then (take :+ drop.head, drop.tail) else (take, drop)
+        go(List.empty, drop1, take1, head._1)
+      case head :: tail =>
+        (List(head), tail, head._1)
+      case _ =>
+        throwGenericError()
+    }
+    
   }
 
   private def funForZipped(zipped: List[ValDef], body: Term, owner: Symbol): Term = {
@@ -177,21 +191,42 @@ class ADOImpl(using Quotes) {
   def throwGenericError(): Nothing =
     report.errorAndAbort("Oopsie, wrong argument passed to ado!")
 
-  //TODO(kπ) this can probably give false positives
-  private def extractBodyAndValDef(body: Term, valdef: ValDef): (Term, ValDef) = body match {
-    case Match(Typed(Ident(name), tpt), List(CaseDef(Ident(name1), _, term))) if name == valdef.name && name1 == "_" =>
-      term -> ValDef.copy(valdef)(name = "_", tpt = valdef.tpt, rhs = valdef.rhs)
+// Block(List(DefDef(_, List(TermParamClause(List(valdef))), _, Some(rest))), _)
+
+  //TODO(kπ) maybe should be more generic
+  private def extractBodyAndValDef(expr: Term): Option[(ValDef, Term)] = expr match {
+    case Block(List(DefDef(_, List(TermParamClause(List(valdef))), _, Some(rest))), _) =>
+      Some(adaptValDefAndBody(valdef, rest))
+    case Block(List(), expr) =>
+      extractBodyAndValDef(expr)
     case _ =>
-      body -> valdef
+      throwGenericError()
   }
 
+  //TODO(kπ) this can probably give false positives
+  private def adaptValDefAndBody(valdef: ValDef, body: Term): (ValDef, Term) = body match {
+    case Match(Typed(Ident(name), tpt), List(CaseDef(Ident(name1), _, term))) if name == valdef.name && name1 == "_" =>
+      ValDef.copy(valdef)(name = "_", tpt = valdef.tpt, rhs = valdef.rhs) -> term
+    case _ =>
+      valdef -> body
+  }
+
+  private def supportedMethodInChain(name: String): Boolean =
+    List("flatMap", "map").contains(name)
+
+  //TODO(kπ) maybe should be more generic
   private def toBindings(exprTerm: Term, acc: List[Binding] = List.empty): (List[Binding], Term) = exprTerm match
-    case Apply(TypeApply(Select(expr, "flatMap"), _), List(Block(List(DefDef(_, List(TermParamClause(List(valdef))), _, Some(rest))), _))) =>
-      val (body, vd) = extractBodyAndValDef(rest, valdef)
-      toBindings(body, Binding(vd, expr) :: acc)
-    case Apply(TypeApply(Select(expr, "map"), _), List(Block(List(DefDef(_, List(TermParamClause(List(valdef))), _, Some(rest))), _))) =>
-      val (body, vd) = extractBodyAndValDef(rest, valdef)
-      (Binding(vd, expr) :: acc).reverse -> body
+    case Apply(TypeApply(Select(expr, methodName), typeArgs), List(arg)) if supportedMethodInChain(methodName) =>
+      extractBodyAndValDef(arg) match {
+        case Some((valdef, body)) =>
+          toBindings(body, Binding(valdef, expr, methodName, typeArgs.map(_.tpe)) :: acc)
+        case _ =>
+          acc.reverse -> exprTerm
+      }
+    case Block(List(), exprTerm) =>
+      toBindings(exprTerm, acc)
+    case _ =>
+      acc.reverse -> exprTerm
 
   extension [T <: Tree](tree: T) private def alphaRename(renames: Map[Symbol, Symbol]): T = {
     object treeMap extends TreeMap:
