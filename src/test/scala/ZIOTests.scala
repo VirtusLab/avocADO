@@ -20,7 +20,7 @@ class ZIOTests extends munit.FunSuite {
     }
   }
 
-  testWithTimeLimit("correctly expand a simple ZIO comprehension 1", 1000) {
+  testWithTimeLimit("correctly expand a simple ZIO comprehension 1", 1200) {
     val wait = ZIO.sleep(800.millis)
     val run: UIO[Int] = ado {
       for {
@@ -35,7 +35,7 @@ class ZIOTests extends munit.FunSuite {
     assertEquals(res, 1)
   }
 
-  testWithTimeLimit("correctly expand a simple ZIO comprehension 2", 1000) {
+  testWithTimeLimit("correctly expand a simple ZIO comprehension 2", 1200) {
     val wait = ZIO.sleep(800.millis)
     val run: UIO[Int] = ado {
       for {

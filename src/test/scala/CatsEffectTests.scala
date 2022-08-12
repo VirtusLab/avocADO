@@ -21,7 +21,7 @@ class CatsEffectTests extends munit.FunSuite {
     }
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 1", 1000) {
+  testWithTimeLimit("correctly expand a simple cats effect comprehension 1", 1200) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -94,7 +94,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 14)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 6", 1000) {
+  testWithTimeLimit("correctly expand a simple cats effect comprehension 6", 1200) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -107,7 +107,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 7", 1000) {
+  testWithTimeLimit("correctly expand a simple cats effect comprehension 7", 1200) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -121,7 +121,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 8", 1000) {
+  testWithTimeLimit("correctly expand a simple cats effect comprehension 8", 1200) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -150,7 +150,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 10", 1000) {
+  testWithTimeLimit("correctly expand a simple cats effect comprehension 10", 1200) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -165,7 +165,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 11", 1000) {
+  testWithTimeLimit("correctly expand a simple cats effect comprehension 11", 1200) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
