@@ -15,6 +15,7 @@ lazy val avocado = project
     libraryDependencies ++= Seq(
       "com.lihaoyi" %% "pprint" % "0.7.3",
       "org.scalameta" %% "munit" % "0.7.29" % Test,
-      "org.typelevel" %% "cats-effect" % "3.3.14" % Test
+      "org.typelevel" %% "cats-effect" % "3.3.14" % Test,
+      "dev.zio" %% "zio" % "2.0.0" % Test
     )
   )

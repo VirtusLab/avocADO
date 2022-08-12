@@ -17,7 +17,8 @@ class ADOImpl(using Quotes) {
     valdef: ValDef,
     tree: Term,
     methodName: String,
-    typeArgs: List[TypeRepr]
+    typeArgs: List[TypeRepr],
+    additionalArgs: List[Term]
   )
 
   def adoImpl[F[_]: Type, A: Type](compExpr: Expr[F[A]], apExpr: Expr[Applicative[F]])(using Quotes): Expr[F[A]] = {
@@ -44,13 +45,19 @@ class ADOImpl(using Quotes) {
       case Nil =>
         val term: Select = acc.select(acc.tpe.typeSymbol.methodMember(lastBinding.methodName).head)
         val tpes = lastBinding.typeArgs.map(_.widen)
-        term.appliedToTypes(tpes).appliedTo(funForZipped(zipped, res, Symbol.spliceOwner))
+        term
+          .appliedToTypes(tpes)
+          .appliedTo(funForZipped(zipped, res, Symbol.spliceOwner))
+          .appliedToArgsIfNeeded(lastBinding.additionalArgs)
       case _ =>
         val (toZip, rest, newLastBinding) = splitToZip(bindings)
         val term: Select = acc.select(acc.tpe.typeSymbol.methodMember(lastBinding.methodName).head)
         val body = go(rest, toZip.map(_._1.valdef), zipExprs(toZip, ap), newLastBinding)
         val tpes = lastBinding.typeArgs.map(_.widen)
-        term.appliedToTypes(tpes).appliedTo(funForZipped(zipped, body, Symbol.spliceOwner))
+        term
+          .appliedToTypes(tpes)
+          .appliedTo(funForZipped(zipped, body, Symbol.spliceOwner))
+          .appliedToArgsIfNeeded(lastBinding.additionalArgs)
     }
 
     val (toZip, rest, lastMethod) = splitToZip(bindings)
@@ -216,10 +223,19 @@ class ADOImpl(using Quotes) {
 
   //TODO(kπ) maybe should be more generic
   private def toBindings(exprTerm: Term, acc: List[Binding] = List.empty): (List[Binding], Term) = exprTerm match
-    case Apply(TypeApply(Select(expr, methodName), typeArgs), List(arg)) if supportedMethodInChain(methodName) =>
+    case Apply(Apply(TypeApply(Select(expr, methodName), typeArgs), List(arg)), args)
+    if supportedMethodInChain(methodName) =>
       extractBodyAndValDef(arg) match {
         case Some((valdef, body)) =>
-          toBindings(body, Binding(valdef, expr, methodName, typeArgs.map(_.tpe)) :: acc)
+          toBindings(body, Binding(valdef, expr, methodName, typeArgs.map(_.tpe), args) :: acc)
+        case _ =>
+          acc.reverse -> exprTerm
+      }
+    case Apply(TypeApply(Select(expr, methodName), typeArgs), List(arg))
+    if supportedMethodInChain(methodName) =>
+      extractBodyAndValDef(arg) match {
+        case Some((valdef, body)) =>
+          toBindings(body, Binding(valdef, expr, methodName, typeArgs.map(_.tpe), List.empty) :: acc)
         case _ =>
           acc.reverse -> exprTerm
       }
@@ -237,6 +253,13 @@ class ADOImpl(using Quotes) {
           super.transformTerm(tree)(owner)
       }
     treeMap.transformTree(tree)(Symbol.spliceOwner).asInstanceOf[T]
+  }
+
+  extension (term: Term) private def appliedToArgsIfNeeded(args: List[Term]): Term = {
+    if args.isEmpty then
+      term
+    else
+      term.appliedToArgs(args)
   }
 
   private def getBindingDependencies(tree: Tree, bindingVals: Set[ValDef] = Set.empty): Set[Symbol] = {
