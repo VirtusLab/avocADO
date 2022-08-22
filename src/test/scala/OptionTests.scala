@@ -121,4 +121,15 @@ class OptionTests extends munit.FunSuite {
     assertEquals(res, Some(6))
   }
 
+  test("correctly expand a simple option comprehension 11") {
+    val res = ado {
+      for {
+        a <- Some(1)
+        b <- Some(a + 2)
+        a <- if b < 1 then None else Some("1")
+      } yield a.toInt + b
+    }
+    assertEquals(res, Some(4))
+  }
+
 }

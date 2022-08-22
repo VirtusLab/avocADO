@@ -26,25 +26,22 @@ class CatsEffectTests extends munit.FunSuite {
     val run: IO[Int] = ado {
       for {
         a <- wait.map(_ => 1)
-        b <- wait.map(_ => 2)
-      } yield a + b
+      } yield a
     }
     val res = run.unsafeRunSync()
-    assertEquals(res, 3)
+    assertEquals(res, 1)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 2", 2000) {
+  testWithTimeLimit("correctly expand a simple cats effect comprehension 2", 1200) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
-        c <- IO(a + b)
-        d <- wait.map(_ => 4)
-      } yield c + d
+      } yield a + b
     }
     val res = run.unsafeRunSync()
-    assertEquals(res, 7)
+    assertEquals(res, 3)
   }
 
   testWithTimeLimit("correctly expand a simple cats effect comprehension 3", 2000) {
@@ -55,7 +52,6 @@ class CatsEffectTests extends munit.FunSuite {
         b <- wait.map(_ => 2)
         c <- IO(a + b)
         d <- wait.map(_ => 4)
-        e <- wait.map(Function.const(5))
       } yield c + d
     }
     val res = run.unsafeRunSync()
@@ -70,7 +66,7 @@ class CatsEffectTests extends munit.FunSuite {
         b <- wait.map(_ => 2)
         c <- IO(a + b)
         d <- wait.map(_ => 4)
-        e <- wait
+        e <- wait.map(Function.const(5))
       } yield c + d
     }
     val res = run.unsafeRunSync()
@@ -78,6 +74,21 @@ class CatsEffectTests extends munit.FunSuite {
   }
 
   testWithTimeLimit("correctly expand a simple cats effect comprehension 5", 2000) {
+    val wait = IO.sleep(800.millis)
+    val run: IO[Int] = ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        c <- IO(a + b)
+        d <- wait.map(_ => 4)
+        e <- wait
+      } yield c + d
+    }
+    val res = run.unsafeRunSync()
+    assertEquals(res, 7)
+  }
+
+  testWithTimeLimit("correctly expand a simple cats effect comprehension 6", 2000) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -94,19 +105,6 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 14)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 6", 1200) {
-    val wait = IO.sleep(800.millis)
-    val run: IO[Int] = ado {
-      for {
-        a <- wait.map(_ => 1)
-        b <- wait.map(_ => 2)
-        _ <- wait
-      } yield a + b
-    }
-    val res = run.unsafeRunSync()
-    assertEquals(res, 3)
-  }
-
   testWithTimeLimit("correctly expand a simple cats effect comprehension 7", 1200) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
@@ -114,7 +112,6 @@ class CatsEffectTests extends munit.FunSuite {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
         _ <- wait
-        c <- wait.map(_ => 3)
       } yield a + b
     }
     val res = run.unsafeRunSync()
@@ -125,6 +122,20 @@ class CatsEffectTests extends munit.FunSuite {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        _ <- wait
+        c <- wait.map(_ => 3)
+      } yield a + b
+    }
+    val res = run.unsafeRunSync()
+    assertEquals(res, 3)
+  }
+
+  testWithTimeLimit("correctly expand a simple cats effect comprehension 9", 1200) {
+    val wait = IO.sleep(800.millis)
+    val run: IO[Int] = ado {
+      for {
         _ <- wait
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -136,7 +147,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 9", 2000) {
+  testWithTimeLimit("correctly expand a simple cats effect comprehension 10", 2000) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -150,7 +161,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 10", 1200) {
+  testWithTimeLimit("correctly expand a simple cats effect comprehension 11", 1200) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -165,7 +176,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 11", 1200) {
+  testWithTimeLimit("correctly expand a simple cats effect comprehension 12", 1200) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {

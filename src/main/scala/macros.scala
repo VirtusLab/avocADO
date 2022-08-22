@@ -43,7 +43,7 @@ class ADOImpl(using Quotes) {
 
     def go(bindings: List[(Binding, Set[Symbol])], zipped: List[ValDef], acc: Term, lastBinding: Binding): Term = bindings match {
       case Nil =>
-        val term: Select = acc.select(acc.tpe.typeSymbol.methodMember(lastBinding.methodName).head)
+        val term: Select = acc.select(acc.tpe.doWhatYouCanHACK.typeSymbol.methodMember(lastBinding.methodName).head)
         val tpes = lastBinding.typeArgs.map(_.widen)
         term
           .appliedToTypes(tpes)
@@ -244,23 +244,32 @@ class ADOImpl(using Quotes) {
     case _ =>
       acc.reverse -> exprTerm
 
-  extension [T <: Tree](tree: T) private def alphaRename(renames: Map[Symbol, Symbol]): T = {
-    object treeMap extends TreeMap:
-      override def transformTerm(tree: Term)(owner: Symbol): Term = tree match {
-        case ident: Ident if renames.contains(ident.symbol) =>
-          Ident(renames(ident.symbol).termRef)
-        case _ =>
-          super.transformTerm(tree)(owner)
-      }
-    treeMap.transformTree(tree)(Symbol.spliceOwner).asInstanceOf[T]
-  }
+  extension [T <: Tree](tree: T)
+    private def alphaRename(renames: Map[Symbol, Symbol]): T = {
+      object treeMap extends TreeMap:
+        override def transformTerm(tree: Term)(owner: Symbol): Term = tree match {
+          case ident: Ident if renames.contains(ident.symbol) =>
+            Ident(renames(ident.symbol).termRef)
+          case _ =>
+            super.transformTerm(tree)(owner)
+        }
+      treeMap.transformTree(tree)(Symbol.spliceOwner).asInstanceOf[T]
+    }
 
-  extension (term: Term) private def appliedToArgsIfNeeded(args: List[Term]): Term = {
-    if args.isEmpty then
-      term
-    else
-      term.appliedToArgs(args)
-  }
+  extension (term: Term)
+    private def appliedToArgsIfNeeded(args: List[Term]): Term = {
+      if args.isEmpty then
+        term
+      else
+        term.appliedToArgs(args)
+    }
+  
+  extension (tpe: TypeRepr)
+    private def doWhatYouCanHACK: TypeRepr = tpe match {
+      case AndType(lo, hi) => lo
+      case OrType(lo, hi) => lo
+      case _ => tpe
+    }
 
   private def getBindingDependencies(tree: Tree, bindingVals: Set[ValDef] = Set.empty): Set[Symbol] = {
     object accumulator extends TreeAccumulator[Set[Symbol]] {
@@ -269,7 +278,7 @@ class ADOImpl(using Quotes) {
         case _ => foldOverTree(acc, tree)(owner)
       }
     }
-    accumulator.foldTree(Set.empty, tree)(tree.symbol.owner)
+    accumulator.foldTree(Set.empty, tree)(Symbol.spliceOwner)
       .intersect(bindingVals.map(_.symbol))
   }
 
