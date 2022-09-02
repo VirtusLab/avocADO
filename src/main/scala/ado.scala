@@ -2,7 +2,7 @@ package avocado
 
 import macros.*
 
-// TODO eventually docs
+//TODO(kπ) eventually docs
 inline def ado[F[_], A](inline comp: F[A])(using ap: Applicative[F]): F[A] =
   ${ macros.adoImpl('comp, 'ap) }
 

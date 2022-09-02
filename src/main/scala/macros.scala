@@ -13,8 +13,14 @@ object macros {
 class ADOImpl(using Quotes) {
   import quotes.reflect.*
 
+  private case class VarRef(
+    symbol: Symbol,
+    tpt: TypeTree,
+    name: String
+  )
+
   private case class Binding(
-    valdef: ValDef,
+    varrefs: List[VarRef],
     tree: Term,
     methodName: String,
     typeArgs: List[TypeRepr],
@@ -30,7 +36,7 @@ class ADOImpl(using Quotes) {
 
     val (bindings, res) = toBindings(exprTree)
 
-    val bindingVals: Set[ValDef] = bindings.map(_.valdef).toSet
+    val bindingVals: Set[VarRef] = bindings.flatMap(_.varrefs).toSet
 
     val bindingsWithDependencies: List[(Binding, Set[Symbol])] = bindings.map {
       case binding => (binding, getBindingDependencies(binding.tree, bindingVals))
@@ -41,7 +47,7 @@ class ADOImpl(using Quotes) {
 
   private def connectBindings(bindings: List[(Binding, Set[Symbol])], res: Term, ap: Term): Tree = {
 
-    def go(bindings: List[(Binding, Set[Symbol])], zipped: List[ValDef], acc: Term, lastBinding: Binding): Term = bindings match {
+    def go(bindings: List[(Binding, Set[Symbol])], zipped: List[List[VarRef]], acc: Term, lastBinding: Binding): Term = bindings match {
       case Nil =>
         val term: Select = acc.select(acc.tpe.doWhatYouCanHACK.typeSymbol.methodMember(lastBinding.methodName).head)
         val tpes = lastBinding.typeArgs.map(_.widen)
@@ -52,7 +58,7 @@ class ADOImpl(using Quotes) {
       case _ =>
         val (toZip, rest, newLastBinding) = splitToZip(bindings)
         val term: Select = acc.select(acc.tpe.typeSymbol.methodMember(lastBinding.methodName).head)
-        val body = go(rest, toZip.map(_._1.valdef), zipExprs(toZip, ap), newLastBinding)
+        val body = go(rest, toZip.map(_._1.varrefs), zipExprs(toZip, ap), newLastBinding)
         val tpes = lastBinding.typeArgs.map(_.widen)
         term
           .appliedToTypes(tpes)
@@ -61,25 +67,25 @@ class ADOImpl(using Quotes) {
     }
 
     val (toZip, rest, lastMethod) = splitToZip(bindings)
-    go(rest, toZip.map(_._1.valdef), zipExprs(toZip, ap), lastMethod)
+    go(rest, toZip.map(_._1.varrefs), zipExprs(toZip, ap), lastMethod)
   }
 
   private def extractTypeFromApplicative(typeRepr: TypeRepr): TypeRepr = typeRepr.widen match {
     case AppliedType(_, args) => args.last
   }
 
-  private def doZip(receiver: Term, valdef: ValDef, arg: Term, ap: Term): Term = {
+  private def doZip(receiver: Term, varrefs: List[VarRef], arg: Term, ap: Term): Term = {
     val receiverTypeSymbol = receiver.tpe.typeSymbol
     val argTpe = extractTypeFromApplicative(arg.tpe)
     ap
       .select(ap.tpe.typeSymbol.methodMember("zip").head)
-      .appliedToTypes(List(valdef.tpt.tpe.widen, argTpe.widen)).appliedTo(receiver, arg)
+      .appliedToTypes(List(typeReprFromVarRefs(varrefs).widen, argTpe.widen)).appliedTo(receiver, arg)
   }
 
   private def zipExprs(toZip: List[(Binding, Set[Symbol])], ap: Term): Term = {
     toZip.init.foldRight(toZip.last._1.tree) {
       case ((binding, _), acc) =>
-        doZip(binding.tree, binding.valdef, acc, ap)
+        doZip(binding.tree, binding.varrefs, acc, ap)
     }
   }
 
@@ -94,7 +100,7 @@ class ADOImpl(using Quotes) {
       case Nil =>
         (toZip, dropped, lastBinding)
       case head :: bindings =>
-        val (take, drop) = bindings.span(!_._2.contains(head._1.valdef.symbol))
+        val (take, drop) = bindings.span( b => b._2.intersect(head._1.varrefs.map(_.symbol).toSet).isEmpty)
         go(toZip :+ head, drop ++ dropped, take, head._1)
     }
 
@@ -111,50 +117,74 @@ class ADOImpl(using Quotes) {
     
   }
 
-  private def funForZipped(zipped: List[ValDef], body: Term, owner: Symbol): Term = {
+  private def typeReprFromVarRefs(varrefs: List[VarRef]): TypeRepr = varrefs match {
+    case List(varref) =>
+      varref.tpt.tpe
+    case _ =>
+      val tupleSym = defn.TupleClass(varrefs.size)
+      AppliedType(tupleSym.typeRef, varrefs.map(_.tpt.tpe))
+  }
+
+  private def funForZipped(zipped: List[List[VarRef]], body: Term, owner: Symbol): Term = {
     val tuple2: Term = '{Tuple2}.asTerm.asInstanceOf[Inlined].body
     val AppliedType(tuple2Tpe: TypeRepr, _) = TypeRepr.of[Tuple2[Any, Any]]: @unchecked
 
-    def typeTreeOfTuples(zipped: List[ValDef]): TypeTree =
-      TypeTree.of(using typeReprOfTuples(zipped).asType)
-
-    def typeReprOfTuples(zipped: List[ValDef]): TypeRepr = zipped match {
+    def typeReprOfTuples(zipped: List[List[VarRef]]): TypeRepr = zipped match {
       case Nil =>
         throwGenericError()
       case head :: Nil =>
-        head.tpt.tpe
+        typeReprFromVarRefs(head)
       case head :: zipped =>
         AppliedType(
           tuple2Tpe,
           List(
-            head.tpt.tpe,
+            typeReprFromVarRefs(head),
             typeReprOfTuples(zipped)
           )
         )
     }
 
-    def makeBind(valdef: ValDef, owner: Symbol): (Tree, Map[Symbol, Symbol]) = {
-      if valdef.name == "_" then
+    def makeBind(varref: VarRef, owner: Symbol): (Tree, Map[Symbol, Symbol]) = {
+      if varref.name == "_" then
         Wildcard() -> Map.empty
       else
-        val sym = Symbol.newBind(owner, valdef.name, Flags.EmptyFlags, valdef.tpt.tpe)
-        Bind(sym, Wildcard()) -> Map(valdef.symbol -> sym)
+        val sym = Symbol.newBind(owner, varref.name, Flags.EmptyFlags, varref.tpt.tpe)
+        Bind(sym, Wildcard()) -> Map(varref.symbol -> sym)
     }
 
-    def unapplies(zipped: List[ValDef], owner: Symbol): (Tree, Map[Symbol, Symbol]) = zipped match {
+    def makeUnapplies(varrefs: List[VarRef], owner: Symbol): (Tree, Map[Symbol, Symbol]) = varrefs match {
+      case varref :: Nil =>
+        makeBind(varref, owner)
+      case _ =>
+        val (binds, renames) = varrefs.map(makeBind(_, owner)).foldLeft(List.empty[Tree] -> Map.empty[Symbol, Symbol]) {
+          case ((accBinds, accRenames), (bind, renames)) =>
+            (accBinds :+ bind) -> (accRenames ++ renames)
+        }
+        val tupleModuleSym = defn.TupleClass(varrefs.size).companionModule
+        Unapply(
+          TypeApply(
+            Ref(tupleModuleSym).select(tupleModuleSym.methodMember("unapply").head),
+            varrefs.map(_.tpt)
+          ),
+          List.empty,
+          binds
+        ) -> renames
+    }
+
+    def unapplies(zipped: List[List[VarRef]], owner: Symbol): (Tree, Map[Symbol, Symbol]) = zipped match {
       case Nil =>
         throwGenericError()
       case head :: Nil =>
-        makeBind(head, owner)
+        makeUnapplies(head, owner)
       case head :: zipped =>
-        val (bind, renames) = makeBind(head, owner)
+        val (bind, renames) = makeUnapplies(head, owner)
         val (tree, binds) = unapplies(zipped, owner)
         Unapply(
           TypeApply(
             Select(tuple2, tuple2.tpe.typeSymbol.methodMember("unapply").head),
             List(
-              head.tpt,
-              typeTreeOfTuples(zipped)
+              Inferred(typeReprFromVarRefs(head)),
+              Inferred(typeReprOfTuples(zipped))
             )
           ),
           List.empty,
@@ -198,24 +228,27 @@ class ADOImpl(using Quotes) {
   def throwGenericError(): Nothing =
     report.errorAndAbort("Oopsie, wrong argument passed to ado!")
 
-// Block(List(DefDef(_, List(TermParamClause(List(valdef))), _, Some(rest))), _)
-
   //TODO(kπ) maybe should be more generic
-  private def extractBodyAndValDef(expr: Term): Option[(ValDef, Term)] = expr match {
+  private def extractBodyAndVarRefs(expr: Term): Option[(List[VarRef], Term)] = expr match {
     case Block(List(DefDef(_, List(TermParamClause(List(valdef))), _, Some(rest))), _) =>
       Some(adaptValDefAndBody(valdef, rest))
     case Block(List(), expr) =>
-      extractBodyAndValDef(expr)
+      extractBodyAndVarRefs(expr)
     case _ =>
       throwGenericError()
   }
 
   //TODO(kπ) this can probably give false positives
-  private def adaptValDefAndBody(valdef: ValDef, body: Term): (ValDef, Term) = body match {
-    case Match(Typed(Ident(name), tpt), List(CaseDef(Ident(name1), _, term))) if name == valdef.name && name1 == "_" =>
-      ValDef.copy(valdef)(name = "_", tpt = valdef.tpt, rhs = valdef.rhs) -> term
+  private def adaptValDefAndBody(valdef: ValDef, body: Term): (List[VarRef], Term) = body match {
+    case Match(Typed(Ident(name), tpt), List(CaseDef(ident@Ident(name1), _, term))) if name == valdef.name && name1 == "_" =>
+      List(VarRef(ident.symbol, tpt, name1)) -> term
+    case Match(Typed(Ident(name), _), List(CaseDef(Unapply(TypeApply(Select(prefix, method), tpts), _, patterns), _, term))) if defn.isTupleClass(prefix.symbol.companionClass) && method == "unapply" =>
+      patterns.zip(tpts).map {
+        case (bind@Bind(name, _), tpt) =>
+          VarRef(bind.symbol, tpt, name)
+      } -> term
     case _ =>
-      valdef -> body
+      List(VarRef(valdef.symbol, valdef.tpt, valdef.name)) -> body
   }
 
   private def supportedMethodInChain(name: String): Boolean =
@@ -225,17 +258,17 @@ class ADOImpl(using Quotes) {
   private def toBindings(exprTerm: Term, acc: List[Binding] = List.empty): (List[Binding], Term) = exprTerm match
     case Apply(Apply(TypeApply(Select(expr, methodName), typeArgs), List(arg)), args)
     if supportedMethodInChain(methodName) =>
-      extractBodyAndValDef(arg) match {
-        case Some((valdef, body)) =>
-          toBindings(body, Binding(valdef, expr, methodName, typeArgs.map(_.tpe), args) :: acc)
+      extractBodyAndVarRefs(arg) match {
+        case Some((varrefs, body)) =>
+          toBindings(body, Binding(varrefs, expr, methodName, typeArgs.map(_.tpe), args) :: acc)
         case _ =>
           acc.reverse -> exprTerm
       }
     case Apply(TypeApply(Select(expr, methodName), typeArgs), List(arg))
     if supportedMethodInChain(methodName) =>
-      extractBodyAndValDef(arg) match {
-        case Some((valdef, body)) =>
-          toBindings(body, Binding(valdef, expr, methodName, typeArgs.map(_.tpe), List.empty) :: acc)
+      extractBodyAndVarRefs(arg) match {
+        case Some((varrefs, body)) =>
+          toBindings(body, Binding(varrefs, expr, methodName, typeArgs.map(_.tpe), List.empty) :: acc)
         case _ =>
           acc.reverse -> exprTerm
       }
@@ -271,7 +304,7 @@ class ADOImpl(using Quotes) {
       case _ => tpe
     }
 
-  private def getBindingDependencies(tree: Tree, bindingVals: Set[ValDef] = Set.empty): Set[Symbol] = {
+  private def getBindingDependencies(tree: Tree, bindingVals: Set[VarRef] = Set.empty): Set[Symbol] = {
     object accumulator extends TreeAccumulator[Set[Symbol]] {
       def foldTree(acc: Set[Symbol], tree: Tree)(owner: Symbol): Set[Symbol] = tree match {
         case ident: Ident => acc + ident.symbol
