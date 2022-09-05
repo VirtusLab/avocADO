@@ -208,4 +208,93 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 6)
   }
 
+  testWithTimeLimit("correctly expand a simple cats effect comprehension 14", 1200) {
+    val wait = IO.sleep(800.millis)
+    val run: IO[Int] = ado {
+      for {
+        a <- wait.map(_ => 1)
+        b = 2
+        c <- wait.map(_ => 3)
+        d = 4
+      } yield a + b + c + d
+    }
+    val res = run.unsafeRunSync()
+    assertEquals(res, 10)
+  }
+
+  testWithTimeLimit("correctly expand a simple cats effect comprehension 15", 2000) {
+    val wait = IO.sleep(800.millis)
+    val run: IO[Int] = ado {
+      for {
+        a <- wait.map(_ => 1)
+        b = 2
+        c <- wait.map(_ => b + 1)
+        d = 4
+      } yield a + b + c + d
+    }
+    val res = run.unsafeRunSync()
+    assertEquals(res, 10)
+  }
+
+  testWithTimeLimit("correctly expand a simple cats effect comprehension 16", 2000) {
+    val wait = IO.sleep(800.millis)
+    val run: IO[Int] = ado {
+      for {
+        a <- wait.map(_ => 1)
+        b = 2
+        c <- wait.map(_ => a + 2)
+        d = 4
+      } yield a + b + c + d
+    }
+    val res = run.unsafeRunSync()
+    assertEquals(res, 10)
+  }
+
+  testWithTimeLimit("correctly expand a simple cats effect comprehension 17", 2000) {
+    val wait = IO.sleep(800.millis)
+    val run: IO[Int] = ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        c = a + b
+        d <- wait.map(_ => 4)
+        e <- wait.map(Function.const(5))
+      } yield c + d
+    }
+    val res = run.unsafeRunSync()
+    assertEquals(res, 7)
+  }
+
+  testWithTimeLimit("correctly expand a simple cats effect comprehension 18", 2000) {
+    val wait = IO.sleep(800.millis)
+    val run: IO[Int] = ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        c <- IO(a + b)
+        d = 4
+        e <- wait
+      } yield c + d
+    }
+    val res = run.unsafeRunSync()
+    assertEquals(res, 7)
+  }
+
+  testWithTimeLimit("correctly expand a simple cats effect comprehension 19", 2000) {
+    val wait = IO.sleep(800.millis)
+    val run: IO[Int] = ado {
+      for {
+        a <- wait.map(_ => 1)
+        b = 2
+        c <- IO(a + b)
+        d <- wait.map(_ => 4)
+        e <- wait
+        f <- wait
+        g <- wait.map(Function.const(7))
+      } yield c + d + g
+    }
+    val res = run.unsafeRunSync()
+    assertEquals(res, 14)
+  }
+
 }

@@ -208,7 +208,7 @@ class ADOImpl(using Quotes) {
       { case List(List(x)) =>
           Some {
             Match(
-              x.asExpr.asTerm,
+              Typed(x.asExpr.asTerm, Inferred(AnnotatedType(x.asExpr.asTerm.tpe, New(Inferred(Symbol.requiredClass("scala.unchecked").typeRef))))),
               List(
                 CaseDef(
                   pattern,
