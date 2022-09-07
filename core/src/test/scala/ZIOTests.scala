@@ -1,7 +1,7 @@
 package avacado.tests
 
 import avocado.*
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import zio.*
 
 class ZIOTests extends munit.FunSuite {

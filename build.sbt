@@ -22,10 +22,19 @@ lazy val avocado = projectMatrix
     libraryDependencies ++= Seq(
       "com.lihaoyi" %%% "pprint" % "0.7.3",
       "org.scalameta" %%% "munit" % "0.7.29" % Test,
-      "org.typelevel" %%% "cats-effect" % "3.3.14" % Test,
       "dev.zio" %%% "zio" % "2.0.0" % Test
     )
   )
   .jvmPlatform(scalaVersions = List(scala3))
 
-
+lazy val catsEffect3 = projectMatrix
+  .in(file("cats-effect-3"))
+  .settings(
+    name := "avocADO-cats-effect-3",
+    libraryDependencies ++= Seq(
+      "org.typelevel" %%% "cats-effect" % "3.3.14",
+      "org.scalameta" %%% "munit" % "0.7.29" % Test
+    )
+  )
+  .jvmPlatform(scalaVersions = List(scala3))
+  .dependsOn(avocado)

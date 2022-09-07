@@ -1,16 +1,13 @@
 package avacado.tests
 
 import avocado.*
-import scala.concurrent.duration._
+import avocado.catseffect3.given
+
+import scala.concurrent.duration.*
 import cats.effect.IO
-import cats.effect.unsafe.implicits._
+import cats.effect.unsafe.implicits.*
 
 class CatsEffectTests extends munit.FunSuite {
-
-  given Applicative[IO] = new Applicative[IO] {
-    def pure[A](a: A): IO[A] = IO(a)
-    def zip[A, B](fa: IO[A], fb: IO[B]): IO[(A, B)] = fa.both(fb)
-  }
 
   def testWithTimeLimit(name: String, maxMillis: Long)(body: => Unit): Unit = {
     test(name) {
