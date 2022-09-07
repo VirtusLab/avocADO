@@ -1,8 +1,12 @@
 val scala3 = "3.2.0"
 
 val commonSettings = Seq(
-  scalaVersion := scala3,
-  version := "0.1.0-SNAPSHOT",
+  organization := "org.virtuslab",
+  homepage := Some(url("https://github.com/VirtusLab/avocADO")),
+  licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+  developers := List(
+    Developer("KacperFKorban","Kacper Korban","kacper.f.korban@gmail.com",url("https://twitter.com/KacperKorban"))
+  ),
   libraryDependencies ++= Seq(
     "org.scalameta" %%% "munit" % "0.7.29" % Test
   )
