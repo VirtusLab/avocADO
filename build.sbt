@@ -12,7 +12,8 @@ lazy val root = project
   .in(file("."))
   .settings(commonSettings)
   .settings(
-    name := "avocADO-root"
+    name := "avocADO-root",
+    publish / skip := true
   )
   .aggregate((
     avocado.projectRefs
@@ -26,7 +27,11 @@ lazy val avocado = projectMatrix
   .settings(
     name := "avocADO",
     scalacOptions ++= Seq(
-      "-Xcheck-macros"
+      "-Xcheck-macros",
+      "-explain",
+      "-deprecation",
+      "-unchecked",
+      "-feature"
     ),
     libraryDependencies ++= Seq(
       "com.lihaoyi" %%% "pprint" % "0.7.3"
