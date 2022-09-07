@@ -1,15 +1,11 @@
 package avacado.tests
 
 import avocado.*
+import avocado.zio2.given
 import scala.concurrent.duration.*
 import zio.*
 
-class UIOTests extends munit.FunSuite {
-
-  given Applicative[UIO] = new Applicative[UIO] {
-    def pure[A](a: A): UIO[A] = ZIO.succeed(a)
-    def zip[A, B](fa: UIO[A], fb: UIO[B]): UIO[(A, B)] = fa.zipPar(fb)
-  }
+class ZIOTests extends munit.FunSuite {
 
   def testWithTimeLimit(name: String, maxMillis: Long)(body: => Unit): Unit = {
     test(name) {
@@ -20,9 +16,9 @@ class UIOTests extends munit.FunSuite {
     }
   }
 
-  testWithTimeLimit("correctly expand a simple UIO comprehension 1", 1200) {
+  testWithTimeLimit("correctly expand a simple ZIO comprehension 1", 1200) {
     val wait = ZIO.sleep(800.millis)
-    val run: UIO[Int] = ado {
+    val run: ZIO[Any, Nothing, Int] = ado {
       for {
         a <- ZIO.succeed(1)
       } yield a
@@ -35,9 +31,9 @@ class UIOTests extends munit.FunSuite {
     assertEquals(res, 1)
   }
 
-  testWithTimeLimit("correctly expand a simple UIO comprehension 2", 1200) {
+  testWithTimeLimit("correctly expand a simple ZIO comprehension 2", 1200) {
     val wait = ZIO.sleep(800.millis)
-    val run: UIO[Int] = ado {
+    val run: ZIO[Any, Nothing, Int] = ado {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -51,9 +47,9 @@ class UIOTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("correctly expand a simple UIO comprehension 3", 2000) {
+  testWithTimeLimit("correctly expand a simple ZIO comprehension 3", 2000) {
     val wait = ZIO.sleep(800.millis)
-    val run: UIO[Int] = ado {
+    val run: ZIO[Any, Nothing, Int] = ado {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -69,9 +65,9 @@ class UIOTests extends munit.FunSuite {
     assertEquals(res, 7)
   }
 
-  testWithTimeLimit("correctly expand a simple UIO comprehension 4", 2000) {
+  testWithTimeLimit("correctly expand a simple ZIO comprehension 4", 2000) {
     val wait = ZIO.sleep(800.millis)
-    val run: UIO[Int] = ado {
+    val run: ZIO[Any, Nothing, Int] = ado {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -88,9 +84,9 @@ class UIOTests extends munit.FunSuite {
     assertEquals(res, 7)
   }
 
-  testWithTimeLimit("correctly expand a simple UIO comprehension 5", 2000) {
+  testWithTimeLimit("correctly expand a simple ZIO comprehension 5", 2000) {
     val wait = ZIO.sleep(800.millis)
-    val run: UIO[Int] = ado {
+    val run: ZIO[Any, Nothing, Int] = ado {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -107,9 +103,9 @@ class UIOTests extends munit.FunSuite {
     assertEquals(res, 7)
   }
 
-  testWithTimeLimit("correctly expand a simple UIO comprehension 6", 2000) {
+  testWithTimeLimit("correctly expand a simple ZIO comprehension 6", 2000) {
     val wait = ZIO.sleep(800.millis)
-    val run: UIO[Int] = ado {
+    val run: ZIO[Any, Nothing, Int] = ado {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -128,9 +124,9 @@ class UIOTests extends munit.FunSuite {
     assertEquals(res, 14)
   }
 
-  testWithTimeLimit("correctly expand a simple UIO comprehension 7", 1200) {
+  testWithTimeLimit("correctly expand a simple ZIO comprehension 7", 1200) {
     val wait = ZIO.sleep(800.millis)
-    val run: UIO[Int] = ado {
+    val run: ZIO[Any, Nothing, Int] = ado {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -145,9 +141,9 @@ class UIOTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
   
-  testWithTimeLimit("correctly expand a simple UIO comprehension 8", 1200) {
+  testWithTimeLimit("correctly expand a simple ZIO comprehension 8", 1200) {
     val wait = ZIO.sleep(800.millis)
-    val run: UIO[Int] = ado {
+    val run: ZIO[Any, Nothing, Int] = ado {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -163,9 +159,9 @@ class UIOTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("correctly expand a simple UIO comprehension 9", 1200) {
+  testWithTimeLimit("correctly expand a simple ZIO comprehension 9", 1200) {
     val wait = ZIO.sleep(800.millis)
-    val run: UIO[Int] = ado {
+    val run: ZIO[Any, Nothing, Int] = ado {
       for {
         _ <- wait
         a <- wait.map(_ => 1)
@@ -182,9 +178,9 @@ class UIOTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("correctly expand a simple UIO comprehension 10", 2000) {
+  testWithTimeLimit("correctly expand a simple ZIO comprehension 10", 2000) {
     val wait = ZIO.sleep(800.millis)
-    val run: UIO[Int] = ado {
+    val run: ZIO[Any, Nothing, Int] = ado {
       for {
         a <- wait.map(_ => 1)
         _ <- wait.map(_ => a)
@@ -200,9 +196,9 @@ class UIOTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("correctly expand a simple UIO comprehension 11", 1200) {
+  testWithTimeLimit("correctly expand a simple ZIO comprehension 11", 1200) {
     val wait = ZIO.sleep(800.millis)
-    val run: UIO[Int] = ado {
+    val run: ZIO[Any, Nothing, Int] = ado {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => {
@@ -219,9 +215,9 @@ class UIOTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("correctly expand a simple UIO comprehension 12", 1200) {
+  testWithTimeLimit("correctly expand a simple ZIO comprehension 12", 1200) {
     val wait = ZIO.sleep(800.millis)
-    val run: UIO[Int] = ado {
+    val run: ZIO[Any, Nothing, Int] = ado {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => {
@@ -240,6 +236,40 @@ class UIOTests extends munit.FunSuite {
       ).getOrThrowFiberFailure()
     }
     assertEquals(res, 6)
+  }
+
+  testWithTimeLimit("correctly expand a simple ZIO comprehension 13", 1200) {
+    val wait = ZIO.sleep(800.millis)
+    val run: ZIO[Any, String, Int] = ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        c <- ZIO.fail("Sadge")
+      } yield a + b
+    }
+    val res: Either[String, Int] = Unsafe.unsafe { unsafe ?=>
+      zio.Runtime.default.unsafe.run(
+        run.either
+      ).getOrThrowFiberFailure()
+    }
+    assertEquals(res, Left("Sadge"))
+  }
+
+  testWithTimeLimit("correctly expand a simple ZIO comprehension 14", 1200) {
+    val wait = ZIO.sleep(800.millis)
+    val run: ZIO[Any, String, Int] = ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        c <- if a + b < 5 then ZIO.fail("Sadge") else ZIO.succeed(3)
+      } yield a + b + c
+    }
+    val res: Either[String, Int] = Unsafe.unsafe { unsafe ?=>
+      zio.Runtime.default.unsafe.run(
+        run.either
+      ).getOrThrowFiberFailure()
+    }
+    assertEquals(res, Left("Sadge"))
   }
 
 }
