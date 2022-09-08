@@ -125,9 +125,23 @@ class ADOImpl(using Quotes) {
       AppliedType(tupleSym.typeRef, varrefs.map(_.tpt.tpe))
   }
 
-  private def funForZipped(zipped: List[List[VarRef]], body: Term, owner: Symbol): Term = {
+  private def funForZipped(zipped0: List[List[VarRef]], body: Term, owner: Symbol): Term = {
     val tuple2: Term = '{Tuple2}.asTerm.asInstanceOf[Inlined].body
     val AppliedType(tuple2Tpe: TypeRepr, _) = TypeRepr.of[Tuple2[Any, Any]]: @unchecked
+
+    def shadowDuplicates(zipped: List[List[VarRef]]): List[List[VarRef]] = {
+      zipped.foldRight(List.empty[List[VarRef]] -> Set.empty) {
+        case (elem, (acc, prevs)) =>
+          val (accElem, prevs1) = elem.foldRight(List.empty[VarRef] -> prevs) {
+            case (e, (accElem, prev1)) =>
+              if prev1.contains(e.name) then
+                (e.copy(name = "_") +: accElem) -> prev1
+              else
+                (e +: accElem) -> (prev1 + e.name)
+          }
+          (accElem +: acc) -> prevs1
+      }._1
+    }
 
     def typeReprOfTuples(zipped: List[List[VarRef]]): TypeRepr = zipped match {
       case Nil =>
@@ -194,6 +208,8 @@ class ADOImpl(using Quotes) {
           )
         ) -> (binds ++ renames)
     }
+
+    val zipped = shadowDuplicates(zipped0)
 
     val defdefSymbol = Symbol.newMethod(
       owner,
