@@ -18,7 +18,7 @@ class CatsEffectTests extends munit.FunSuite {
     }
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 1", 1200) {
+  testWithTimeLimit("cats effect comprehension 1", 1200) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -29,7 +29,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 1)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 2", 1200) {
+  testWithTimeLimit("cats effect comprehension 2", 1200) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -41,7 +41,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 3", 2000) {
+  testWithTimeLimit("cats effect comprehension 3", 2000) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -55,7 +55,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 7)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 4", 2000) {
+  testWithTimeLimit("cats effect comprehension 4", 2000) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -70,7 +70,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 7)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 5", 2000) {
+  testWithTimeLimit("cats effect comprehension 5", 2000) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -85,7 +85,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 7)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 6", 2000) {
+  testWithTimeLimit("cats effect comprehension 6", 2000) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -102,7 +102,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 14)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 7", 1200) {
+  testWithTimeLimit("cats effect comprehension 7", 1200) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -115,7 +115,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 8", 1200) {
+  testWithTimeLimit("cats effect comprehension 8", 1200) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -129,7 +129,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 9", 1200) {
+  testWithTimeLimit("cats effect comprehension 9", 1200) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -144,7 +144,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 10", 2000) {
+  testWithTimeLimit("cats effect comprehension 10", 2000) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -158,7 +158,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 11", 1200) {
+  testWithTimeLimit("cats effect comprehension 11", 1200) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -173,7 +173,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 12", 1200) {
+  testWithTimeLimit("cats effect comprehension 12", 1200) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -192,7 +192,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 6)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 13", 1200) {
+  testWithTimeLimit("cats effect comprehension 13", 1200) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -205,7 +205,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 6)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 14", 1200) {
+  testWithTimeLimit("cats effect comprehension 14", 1200) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -219,7 +219,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 10)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 15", 2000) {
+  testWithTimeLimit("cats effect comprehension 15", 2000) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -233,7 +233,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 10)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 16", 2000) {
+  testWithTimeLimit("cats effect comprehension 16", 2000) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -247,7 +247,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 10)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 17", 2000) {
+  testWithTimeLimit("cats effect comprehension 17", 2000) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -262,7 +262,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 7)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 18", 2000) {
+  testWithTimeLimit("cats effect comprehension 18", 2000) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
@@ -277,7 +277,7 @@ class CatsEffectTests extends munit.FunSuite {
     assertEquals(res, 7)
   }
 
-  testWithTimeLimit("correctly expand a simple cats effect comprehension 19", 2000) {
+  testWithTimeLimit("cats effect comprehension 19", 2000) {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
