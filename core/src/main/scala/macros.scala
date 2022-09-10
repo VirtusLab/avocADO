@@ -41,6 +41,8 @@ class ADOImpl(using Quotes) {
         case expr => expr
       case _ => throwGenericError()
 
+    given Context = Context(instanceExpr.asTerm, TypeRepr.of[F])
+
     val (bindings, res) = toBindings(exprTree)
 
     val bindingVals: Set[VarRef] = bindings.flatMap(_.varrefs).toSet
@@ -49,10 +51,7 @@ class ADOImpl(using Quotes) {
       case binding => (binding, getBindingDependencies(binding.tree, bindingVals))
     }
 
-    connectBindings(
-      bindingsWithDependencies,
-      res
-    )(using Context(instanceExpr.asTerm, TypeRepr.of[F])).asExprOf[F[A]]
+    connectBindings(bindingsWithDependencies, res).asExprOf[F[A]]
   }
 
   private def connectBindings(bindings: List[(Binding, Set[Symbol])], res: Term)(using Context): Tree = {
@@ -288,12 +287,12 @@ class ADOImpl(using Quotes) {
     List("flatMap", "map").contains(name)
 
   //TODO(kπ) maybe should be more generic
-  private def toBindings(exprTerm: Term, acc: List[Binding] = List.empty): (List[Binding], Term) = exprTerm match
-    case Apply(Apply(TypeApply(Select(expr, methodName), typeArgs), List(arg)), args)
-    if supportedMethodInChain(methodName) =>
+  private def toBindings(exprTerm: Term, acc: List[Binding] = List.empty)(using Context): (List[Binding], Term) = exprTerm match
+    case Apply(TypeApply(Select(Apply(Apply(TypeApply(ops, targs), List(expr)), evidences), methodName), typeArgs), List(arg))
+    if supportedMethodInChain(methodName) && targs.map(_.tpe.typeSymbol).contains(ctx.fTpe.typeSymbol) =>
       extractBodyAndVarRefs(arg) match {
         case Some((varrefs, body)) =>
-          toBindings(body, Binding(varrefs, expr, methodName, typeArgs.map(_.tpe), args) :: acc)
+          toBindings(body, Binding(varrefs, expr, methodName, typeArgs.map(_.tpe), evidences) :: acc)
         case _ =>
           acc.reverse -> exprTerm
       }
@@ -302,6 +301,14 @@ class ADOImpl(using Quotes) {
       extractBodyAndVarRefs(arg) match {
         case Some((varrefs, body)) =>
           toBindings(body, Binding(varrefs, expr, methodName, typeArgs.map(_.tpe), List.empty) :: acc)
+        case _ =>
+          acc.reverse -> exprTerm
+      }
+    case Apply(Apply(TypeApply(Select(expr, methodName), typeArgs), List(arg)), args)
+    if supportedMethodInChain(methodName) =>
+      extractBodyAndVarRefs(arg) match {
+        case Some((varrefs, body)) =>
+          toBindings(body, Binding(varrefs, expr, methodName, typeArgs.map(_.tpe), args) :: acc)
         case _ =>
           acc.reverse -> exprTerm
       }
