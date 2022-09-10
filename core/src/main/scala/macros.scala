@@ -5,8 +5,8 @@ import scala.quoted.*
 
 object macros {
 
-  def adoImpl[F[_]: Type, A: Type](compExpr: Expr[F[A]], apExpr: Expr[Applicative[F]])(using Quotes): Expr[F[A]] =
-    ADOImpl(using quotes).adoImpl(compExpr, apExpr)
+  def adoImpl[F[_]: Type, A: Type](compExpr: Expr[F[A]], instanceExpr: Expr[AvocADO[F]])(using Quotes): Expr[F[A]] =
+    ADOImpl(using quotes).adoImpl(compExpr, instanceExpr)
 
 }
 
@@ -27,7 +27,14 @@ class ADOImpl(using Quotes) {
     additionalArgs: List[Term]
   )
 
-  def adoImpl[F[_]: Type, A: Type](compExpr: Expr[F[A]], apExpr: Expr[Applicative[F]])(using Quotes): Expr[F[A]] = {
+  private case class Context(
+    instance: Term,
+    fTpe: TypeRepr
+  )
+
+  private def ctx(using context: Context): Context = context
+
+  def adoImpl[F[_]: Type, A: Type](compExpr: Expr[F[A]], instanceExpr: Expr[AvocADO[F]])(using Quotes): Expr[F[A]] = {
     val exprTree = compExpr.asTerm match
       case Inlined(_, _, tree) => tree match
         case Block(Nil, expr) => expr
@@ -42,50 +49,59 @@ class ADOImpl(using Quotes) {
       case binding => (binding, getBindingDependencies(binding.tree, bindingVals))
     }
 
-    connectBindings(bindingsWithDependencies, res, apExpr.asTerm).asExprOf[F[A]]
+    connectBindings(
+      bindingsWithDependencies,
+      res
+    )(using Context(instanceExpr.asTerm, TypeRepr.of[F])).asExprOf[F[A]]
   }
 
-  private def connectBindings(bindings: List[(Binding, Set[Symbol])], res: Term, ap: Term): Tree = {
+  private def connectBindings(bindings: List[(Binding, Set[Symbol])], res: Term)(using Context): Tree = {
 
     def go(bindings: List[(Binding, Set[Symbol])], zipped: List[List[VarRef]], acc: Term, lastBinding: Binding): Term = bindings match {
       case Nil =>
-        val term: Select = acc.select(acc.tpe.doWhatYouCanHACK.typeSymbol.methodMember(lastBinding.methodName).head)
-        val tpes = lastBinding.typeArgs.map(_.widen)
-        term
-          .appliedToTypes(tpes)
-          .appliedTo(funForZipped(zipped, res, Symbol.spliceOwner))
-          .appliedToArgsIfNeeded(lastBinding.additionalArgs)
+        val arg = funForZipped(zipped, res, Symbol.spliceOwner)
+        ctx.instance
+          .select(ctx.instance.tpe.typeSymbol.methodMember(lastBinding.methodName).head)
+          .appliedToTypes(List(typeReprOfTuples(zipped), adaptTpeForMethod(res, lastBinding.methodName)))
+          .appliedToArgs(List(acc, arg))
       case _ =>
         val (toZip, rest, newLastBinding) = splitToZip(bindings)
-        val term: Select = acc.select(acc.tpe.typeSymbol.methodMember(lastBinding.methodName).head)
-        val body = go(rest, toZip.map(_._1.varrefs), zipExprs(toZip, ap), newLastBinding)
+        val body = go(rest, toZip.map(_._1.varrefs), zipExprs(toZip), newLastBinding)
+        val arg = funForZipped(zipped, body, Symbol.spliceOwner)
         val tpes = lastBinding.typeArgs.map(_.widen)
-        term
-          .appliedToTypes(tpes)
-          .appliedTo(funForZipped(zipped, body, Symbol.spliceOwner))
-          .appliedToArgsIfNeeded(lastBinding.additionalArgs)
+        ctx.instance
+          .select(ctx.instance.tpe.typeSymbol.methodMember(lastBinding.methodName).head)
+          .appliedToTypes(List(typeReprOfTuples(zipped), adaptTpeForMethod(body, lastBinding.methodName)))
+          .appliedToArgs(List(acc, arg))
     }
 
     val (toZip, rest, lastMethod) = splitToZip(bindings)
-    go(rest, toZip.map(_._1.varrefs), zipExprs(toZip, ap), lastMethod)
+    go(rest, toZip.map(_._1.varrefs), zipExprs(toZip), lastMethod)
   }
+
+  private def adaptTpeForMethod(arg: Term, methodName: String): TypeRepr =
+    methodName match {
+      case "map" => arg.tpe.widen
+      case "flatMap" => extractTypeFromApplicative(arg.tpe.widen)
+    }
 
   private def extractTypeFromApplicative(typeRepr: TypeRepr): TypeRepr = typeRepr.widen match {
     case AppliedType(_, args) => args.last
   }
 
-  private def doZip(receiver: Term, varrefs: List[VarRef], arg: Term, ap: Term): Term = {
+  private def doZip(receiver: Term, varrefs: List[VarRef], arg: Term)(using Context): Term = {
     val receiverTypeSymbol = receiver.tpe.typeSymbol
     val argTpe = extractTypeFromApplicative(arg.tpe)
-    ap
-      .select(ap.tpe.typeSymbol.methodMember("zip").head)
-      .appliedToTypes(List(typeReprFromVarRefs(varrefs).widen, argTpe.widen)).appliedTo(receiver, arg)
+    ctx.instance
+      .select(ctx.instance.tpe.typeSymbol.methodMember("zip").head)
+      .appliedToTypes(List(typeReprFromVarRefs(varrefs).widen, argTpe.widen))
+      .appliedTo(receiver, arg)
   }
 
-  private def zipExprs(toZip: List[(Binding, Set[Symbol])], ap: Term): Term = {
+  private def zipExprs(toZip: List[(Binding, Set[Symbol])])(using Context): Term = {
     toZip.init.foldRight(toZip.last._1.tree) {
       case ((binding, _), acc) =>
-        doZip(binding.tree, binding.varrefs, acc, ap)
+        doZip(binding.tree, binding.varrefs, acc)
     }
   }
 
@@ -125,9 +141,25 @@ class ADOImpl(using Quotes) {
       AppliedType(tupleSym.typeRef, varrefs.map(_.tpt.tpe))
   }
 
+  private val tuple2: Term = '{Tuple2}.asTerm.asInstanceOf[Inlined].body
+  private val AppliedType(tuple2Tpe: TypeRepr, _) = TypeRepr.of[Tuple2[Any, Any]]: @unchecked
+
+  private def typeReprOfTuples(zipped: List[List[VarRef]]): TypeRepr = zipped match {
+      case Nil =>
+        throwGenericError()
+      case head :: Nil =>
+        typeReprFromVarRefs(head)
+      case head :: zipped =>
+        AppliedType(
+          tuple2Tpe,
+          List(
+            typeReprFromVarRefs(head),
+            typeReprOfTuples(zipped)
+          )
+        )
+    }
+
   private def funForZipped(zipped0: List[List[VarRef]], body: Term, owner: Symbol): Term = {
-    val tuple2: Term = '{Tuple2}.asTerm.asInstanceOf[Inlined].body
-    val AppliedType(tuple2Tpe: TypeRepr, _) = TypeRepr.of[Tuple2[Any, Any]]: @unchecked
 
     def shadowDuplicates(zipped: List[List[VarRef]]): List[List[VarRef]] = {
       zipped.foldRight(List.empty[List[VarRef]] -> Set.empty) {
@@ -141,21 +173,6 @@ class ADOImpl(using Quotes) {
           }
           (accElem +: acc) -> prevs1
       }._1
-    }
-
-    def typeReprOfTuples(zipped: List[List[VarRef]]): TypeRepr = zipped match {
-      case Nil =>
-        throwGenericError()
-      case head :: Nil =>
-        typeReprFromVarRefs(head)
-      case head :: zipped =>
-        AppliedType(
-          tuple2Tpe,
-          List(
-            typeReprFromVarRefs(head),
-            typeReprOfTuples(zipped)
-          )
-        )
     }
 
     def makeBind(varref: VarRef, owner: Symbol): (Tree, Map[Symbol, Symbol]) = {
