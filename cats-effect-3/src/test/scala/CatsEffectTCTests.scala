@@ -28,18 +28,18 @@ class CatsEffectTCTests extends munit.FunSuite {
     }
   }
 
-  testWithTimeLimit("cats effect comprehension using typeclasses 1", 1200) {
+  testWithTimeLimit("cats effect comprehension with typeclasses 1", 1200) {
     val wait = IO.sleep(800.millis)
     def run[F[_]: Monad: Async](wait: F[Unit]): F[Int] = ado {
       for {
-        a <- wait.map(_ => 1)
+        a <- Monad[F].pure(1)
       } yield a
     }
     val res = run[IO](wait).unsafeRunSync()
     assertEquals(res, 1)
   }
 
-  testWithTimeLimit("cats effect comprehension using typeclasses 2", 1200) {
+  testWithTimeLimit("cats effect comprehension with typeclasses 2", 1200) {
     val wait = IO.sleep(800.millis)
     def run[F[_]: Monad: Async](wait: F[Unit]): F[Int] = ado {
       for {
@@ -51,7 +51,7 @@ class CatsEffectTCTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("cats effect comprehension using typeclasses 3", 2000) {
+  testWithTimeLimit("cats effect comprehension with typeclasses 3", 2000) {
     val wait = IO.sleep(800.millis)
     def run[F[_]: Monad: Async](wait: F[Unit]): F[Int] = ado {
       for {
@@ -65,7 +65,7 @@ class CatsEffectTCTests extends munit.FunSuite {
     assertEquals(res, 7)
   }
 
-  testWithTimeLimit("cats effect comprehension using typeclasses 4", 2000) {
+  testWithTimeLimit("cats effect comprehension with typeclasses 4", 2000) {
     val wait = IO.sleep(800.millis)
     def run[F[_]: Monad: Async](wait: F[Unit]): F[Int] = ado {
       for {
@@ -80,7 +80,7 @@ class CatsEffectTCTests extends munit.FunSuite {
     assertEquals(res, 7)
   }
 
-  testWithTimeLimit("cats effect comprehension using typeclasses 5", 2000) {
+  testWithTimeLimit("cats effect comprehension with typeclasses 5", 2000) {
     val wait = IO.sleep(800.millis)
     def run[F[_]: Monad: Async](wait: F[Unit]): F[Int] = ado {
       for {
@@ -95,7 +95,7 @@ class CatsEffectTCTests extends munit.FunSuite {
     assertEquals(res, 7)
   }
 
-  testWithTimeLimit("cats effect comprehension using typeclasses 6", 2000) {
+  testWithTimeLimit("cats effect comprehension with typeclasses 6", 2000) {
     val wait = IO.sleep(800.millis)
     def run[F[_]: Monad: Async](wait: F[Unit]): F[Int] = ado {
       for {
@@ -112,7 +112,7 @@ class CatsEffectTCTests extends munit.FunSuite {
     assertEquals(res, 14)
   }
 
-  testWithTimeLimit("cats effect comprehension using typeclasses 7", 1200) {
+  testWithTimeLimit("cats effect comprehension with typeclasses 7", 1200) {
     val wait = IO.sleep(800.millis)
     def run[F[_]: Monad: Async](wait: F[Unit]): F[Int] = ado {
       for {
@@ -125,7 +125,7 @@ class CatsEffectTCTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("cats effect comprehension using typeclasses 8", 1200) {
+  testWithTimeLimit("cats effect comprehension with typeclasses 8", 1200) {
     val wait = IO.sleep(800.millis)
     def run[F[_]: Monad: Async](wait: F[Unit]): F[Int] = ado {
       for {
@@ -139,7 +139,7 @@ class CatsEffectTCTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("cats effect comprehension using typeclasses 9", 1200) {
+  testWithTimeLimit("cats effect comprehension with typeclasses 9", 1200) {
     val wait = IO.sleep(800.millis)
     def run[F[_]: Monad: Async](wait: F[Unit]): F[Int] = ado {
       for {
@@ -154,7 +154,7 @@ class CatsEffectTCTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("cats effect comprehension using typeclasses 10", 2000) {
+  testWithTimeLimit("cats effect comprehension with typeclasses 10", 2000) {
     val wait = IO.sleep(800.millis)
     def run[F[_]: Monad: Async](wait: F[Unit]): F[Int] = ado {
       for {
@@ -168,7 +168,7 @@ class CatsEffectTCTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("cats effect comprehension using typeclasses 11", 1200) {
+  testWithTimeLimit("cats effect comprehension with typeclasses 11", 1200) {
     val wait = IO.sleep(800.millis)
     def run[F[_]: Monad: Async](wait: F[Unit]): F[Int] = ado {
       for {
@@ -183,7 +183,7 @@ class CatsEffectTCTests extends munit.FunSuite {
     assertEquals(res, 3)
   }
 
-  testWithTimeLimit("cats effect comprehension using typeclasses 12", 1200) {
+  testWithTimeLimit("cats effect comprehension with typeclasses 12", 1200) {
     val wait = IO.sleep(800.millis)
     def run[F[_]: Monad: Async](wait: F[Unit]): F[Int] = ado {
       for {
@@ -202,7 +202,7 @@ class CatsEffectTCTests extends munit.FunSuite {
     assertEquals(res, 6)
   }
 
-  testWithTimeLimit("cats effect comprehension using typeclasses 13", 1200) {
+  testWithTimeLimit("cats effect comprehension with typeclasses 13", 1200) {
     val wait = IO.sleep(800.millis)
     def run[F[_]: Monad: Async](wait: F[Unit]): F[Int] = ado {
       for {
@@ -215,7 +215,7 @@ class CatsEffectTCTests extends munit.FunSuite {
     assertEquals(res, 6)
   }
 
-  testWithTimeLimit("cats effect comprehension using typeclasses 14", 1200) {
+  testWithTimeLimit("cats effect comprehension with typeclasses 14", 1200) {
     val wait = IO.sleep(800.millis)
     def run[F[_]: Monad: Async](wait: F[Unit]): F[Int] = ado {
       for {
@@ -229,7 +229,7 @@ class CatsEffectTCTests extends munit.FunSuite {
     assertEquals(res, 10)
   }
 
-  testWithTimeLimit("cats effect comprehension using typeclasses 15", 2000) {
+  testWithTimeLimit("cats effect comprehension with typeclasses 15", 2000) {
     val wait = IO.sleep(800.millis)
     def run[F[_]: Monad: Async](wait: F[Unit]): F[Int] = ado {
       for {
@@ -243,7 +243,7 @@ class CatsEffectTCTests extends munit.FunSuite {
     assertEquals(res, 10)
   }
 
-  testWithTimeLimit("cats effect comprehension using typeclasses 16", 2000) {
+  testWithTimeLimit("cats effect comprehension with typeclasses 16", 2000) {
     val wait = IO.sleep(800.millis)
     def run[F[_]: Monad: Async](wait: F[Unit]): F[Int] = ado {
       for {
@@ -257,7 +257,7 @@ class CatsEffectTCTests extends munit.FunSuite {
     assertEquals(res, 10)
   }
 
-  testWithTimeLimit("cats effect comprehension using typeclasses 17", 2000) {
+  testWithTimeLimit("cats effect comprehension with typeclasses 17", 2000) {
     val wait = IO.sleep(800.millis)
     def run[F[_]: Monad: Async](wait: F[Unit]): F[Int] = ado {
       for {
@@ -272,7 +272,7 @@ class CatsEffectTCTests extends munit.FunSuite {
     assertEquals(res, 7)
   }
 
-  testWithTimeLimit("cats effect comprehension using typeclasses 18", 2000) {
+  testWithTimeLimit("cats effect comprehension with typeclasses 18", 2000) {
     val wait = IO.sleep(800.millis)
     def run[F[_]: Monad: Async](wait: F[Unit]): F[Int] = ado {
       for {
@@ -287,7 +287,7 @@ class CatsEffectTCTests extends munit.FunSuite {
     assertEquals(res, 7)
   }
 
-  testWithTimeLimit("cats effect comprehension using typeclasses 19", 2000) {
+  testWithTimeLimit("cats effect comprehension with typeclasses 19", 2000) {
     val wait = IO.sleep(800.millis)
     def run[F[_]: Monad: Async](wait: F[Unit]): F[Int] = ado {
       for {

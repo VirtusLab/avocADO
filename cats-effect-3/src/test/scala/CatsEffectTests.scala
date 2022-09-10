@@ -22,7 +22,7 @@ class CatsEffectTests extends munit.FunSuite {
     val wait = IO.sleep(800.millis)
     val run: IO[Int] = ado {
       for {
-        a <- wait.map(_ => 1)
+        a <- IO(1)
       } yield a
     }
     val res = run.unsafeRunSync()

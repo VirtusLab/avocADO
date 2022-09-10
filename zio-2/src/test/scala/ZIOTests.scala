@@ -20,7 +20,7 @@ class ZIOTests extends munit.FunSuite {
     val wait = ZIO.sleep(800.millis)
     val run: ZIO[Any, Nothing, Int] = ado {
       for {
-        a <- wait.map(_ => 1)
+        a <- ZIO.succeed(1)
       } yield a
     }
     val res = Unsafe.unsafe { unsafe ?=>
