@@ -5,7 +5,7 @@ import scala.quoted.*
 
 object macros {
 
-  def adoImpl[F[_]: Type, A: Type](compExpr: Expr[F[A]], apExpr: Expr[Applicative[F]])(using Quotes): Expr[F[A]] =
+  def adoImpl[F[_]: Type, A: Type](compExpr: Expr[F[A]], apExpr: Expr[AvocADO[F]])(using Quotes): Expr[F[A]] =
     ADOImpl(using quotes).adoImpl(compExpr, apExpr)
 
 }
@@ -27,7 +27,7 @@ class ADOImpl(using Quotes) {
     additionalArgs: List[Term]
   )
 
-  def adoImpl[F[_]: Type, A: Type](compExpr: Expr[F[A]], apExpr: Expr[Applicative[F]])(using Quotes): Expr[F[A]] = {
+  def adoImpl[F[_]: Type, A: Type](compExpr: Expr[F[A]], apExpr: Expr[AvocADO[F]])(using Quotes): Expr[F[A]] = {
     val exprTree = compExpr.asTerm match
       case Inlined(_, _, tree) => tree match
         case Block(Nil, expr) => expr

@@ -4,9 +4,11 @@ import avocado.*
 
 class ExplicitPipelineTests extends munit.FunSuite {
 
-  given Applicative[Option] = new Applicative[Option] {
+  given AvocADO[Option] = new AvocADO[Option] {
     def pure[A](a: A): Option[A] = Some(a)
+    def map[A, B](fa: Option[A], f: A => B): Option[B] = fa.map(f)
     def zip[A, B](fa: Option[A], fb: Option[B]): Option[(A, B)] = fa.zip(fb)
+    def flatMap[A, B](fa: Option[A], f: A => Option[B]): Option[B] = fa.flatMap(f)
   }
 
   test("correctly expand a simple handwritten pipeline 1") {
