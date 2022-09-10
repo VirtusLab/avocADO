@@ -26,7 +26,7 @@ lazy val root = project
   )*)
 
 lazy val avocado = projectMatrix
-  .in(file("core"))
+  .in(file("avocADO"))
   .settings(commonSettings)
   .settings(
     name := "avocADO",

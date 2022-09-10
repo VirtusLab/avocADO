@@ -1,4 +1,4 @@
-package avacado.tests
+package avocado.tests
 
 import avocado.*
 
