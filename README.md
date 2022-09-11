@@ -11,12 +11,20 @@ import avocado.catseffect3.given
 val run: IO[Int] =
   ado {
     for {
-      a <- heavyTask1
-      b <- heavyTask2
-      c <- heavyTask3(a)
-      _ <- heavyTask4
-    } yield c + b
+      a <- doStuff1
+      b <- doStuff2(a)
+      c <- doStuff3
+      d <- doStuff4(a)
+    } yield combine(a, b, c, d)
   }
+```
+
+`avocADO` will transform the above for-comprehension to code equivalent to:
+```scala
+for {
+  a <- doStuff1
+  (b, c, d) <- doStuff2(a).zip(doStuff3).zip(doStuff4(a))
+} yield combine(a, b, c, d)
 ```
 
 ## Description

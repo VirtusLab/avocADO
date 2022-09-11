@@ -247,4 +247,16 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(14)
 
+  testWithTimeLimit("cats effect comprehension 20", 1400) {
+    val wait = IO.sleep(500.millis)
+    ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => a + 1)
+        c <- wait.map(_ => 3)
+        d <- wait.map(_ => a + 3)
+      } yield a + b + c + d
+    }
+  }(10)
+
 }
