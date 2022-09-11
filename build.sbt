@@ -5,7 +5,12 @@ val commonSettings = Seq(
   homepage := Some(url("https://github.com/VirtusLab/avocADO")),
   licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
   developers := List(
-    Developer("KacperFKorban","Kacper Korban","kacper.f.korban@gmail.com",url("https://twitter.com/KacperKorban"))
+    Developer(
+      "KacperFKorban",
+      "Kacper Korban",
+      "kacper.f.korban@gmail.com",
+      url("https://twitter.com/KacperKorban")
+    )
   ),
   libraryDependencies ++= Seq(
     "org.scalameta" %%% "munit" % "0.7.29" % Test
@@ -36,9 +41,6 @@ lazy val avocado = projectMatrix
       "-deprecation",
       "-unchecked",
       "-feature"
-    ),
-    libraryDependencies ++= Seq(
-      "com.lihaoyi" %%% "pprint" % "0.7.3"
     )
   )
   .jvmPlatform(scalaVersions = List(scala3))
