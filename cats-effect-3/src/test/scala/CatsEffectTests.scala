@@ -259,4 +259,53 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(10)
 
+  testWithTimeLimit("cats effect comprehension 21", 1400) {
+    val wait = IO.sleep(500.millis)
+    def getImplicit(using i: Int): IO[Int] = wait.map(_ => i)
+    ado {
+      for {
+        a <- wait.map(_ => 1)
+        given Int <- wait.map(_ => 2)
+        c <- getImplicit
+      } yield c
+    }
+  }(2)
+
+  testWithTimeLimit("cats effect comprehension 22", 1900) {
+    val wait = IO.sleep(500.millis)
+    def getImplicit(using i: Int): IO[Int] = wait.map(_ => i)
+    ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        given Int <- wait.map(_ => 3)
+        c <- getImplicit
+        given Int <- wait.map(_ => 5)
+        d <- getImplicit
+      } yield (c, d)
+    }
+  }((3, 5))
+
+  testWithTimeLimit("cats effect comprehension 23", 900) {
+    val wait = IO.sleep(500.millis)
+    ado {
+      for {
+        _ <- wait.map(_ => 2)
+        b = 1
+      } yield b
+    }
+  }(1)
+
+  testWithTimeLimit("cats effect comprehension 24", 1400) {
+    val wait = IO.sleep(500.millis)
+    def getImplicit(using i: Int): IO[Int] = wait.map(_ => i)
+    ado {
+      for {
+        _ <- wait.map(_ => 2)
+        given Int = 1
+        b <- getImplicit
+      } yield b
+    }
+  }(1)
+
 }

@@ -11,7 +11,7 @@ class OptionTests extends munit.FunSuite {
     def flatMap[A, B](fa: Option[A], f: A => Option[B]): Option[B] = fa.flatMap(f)
   }
 
-  test("simple option comprehension 1") {
+  test("option comprehension 1") {
     val res = ado {
       for {
         a <- Some(1)
@@ -21,7 +21,7 @@ class OptionTests extends munit.FunSuite {
     assertEquals(res, Some(3))
   }
 
-  test("simple option comprehension 2") {
+  test("option comprehension 2") {
     val res = ado {
       for {
         a <- Some(1)
@@ -32,7 +32,7 @@ class OptionTests extends munit.FunSuite {
     assertEquals(res, Some(6))
   }
 
-  test("simple option comprehension 3") {
+  test("option comprehension 3") {
     val res = ado {
       for {
         a <- Some(1)
@@ -43,7 +43,7 @@ class OptionTests extends munit.FunSuite {
     assertEquals(res, Some(3))
   }
 
-  test("simple option comprehension 4") {
+  test("option comprehension 4") {
     val res = ado {
       for {
         a <- Some(1)
@@ -55,7 +55,7 @@ class OptionTests extends munit.FunSuite {
     assertEquals(res, Some(7))
   }
 
-  test("simple option comprehension 5") {
+  test("option comprehension 5") {
     val res = ado {
       for {
         a <- Some(1)
@@ -68,7 +68,7 @@ class OptionTests extends munit.FunSuite {
     assertEquals(res, Some(12))
   }
 
-  test("simple option comprehension 6") {
+  test("option comprehension 6") {
     val res = ado {
       for {
         a <- Some(1)
@@ -80,7 +80,7 @@ class OptionTests extends munit.FunSuite {
     assertEquals(res, None)
   }
 
-  test("simple option comprehension 7") {
+  test("option comprehension 7") {
     val res = ado {
       for {
         a <- Some(1)
@@ -92,7 +92,7 @@ class OptionTests extends munit.FunSuite {
     assertEquals(res, None)
   }
 
-  test("simple option comprehension 8") {
+  test("option comprehension 8") {
     val res = ado {
       for {
         a <- Some(1)
@@ -101,7 +101,7 @@ class OptionTests extends munit.FunSuite {
     assertEquals(res, Some(1))
   }
 
-  test("simple option comprehension 9") {
+  test("option comprehension 9") {
     val res = ado {
       for {
         a <- Some(1)
@@ -112,7 +112,7 @@ class OptionTests extends munit.FunSuite {
     assertEquals(res, Some(1))
   }
 
-  test("simple option comprehension 10") {
+  test("option comprehension 10") {
     val res = ado {
       for {
         a <- Some(1)
@@ -123,7 +123,7 @@ class OptionTests extends munit.FunSuite {
     assertEquals(res, Some(6))
   }
 
-  test("simple option comprehension 11") {
+  test("option comprehension 11") {
     val res = ado {
       for {
         a <- Some(1)
@@ -134,7 +134,7 @@ class OptionTests extends munit.FunSuite {
     assertEquals(res, Some(4))
   }
 
-  test("simple option comprehension 12") {
+  test("option comprehension 12") {
     val res = ado {
       for {
         _ <- Option(null)
@@ -146,7 +146,7 @@ class OptionTests extends munit.FunSuite {
     assertEquals(res, None)
   }
 
-  test("simple option comprehension 13") {
+  test("option comprehension 13") {
     val res = ado {
       for {
         a <- Some(1)
@@ -154,6 +154,51 @@ class OptionTests extends munit.FunSuite {
       } yield a
     }
     assertEquals(res, Some(2))
+  }
+
+  test("option comprehension 14") {
+    def getImplicit(using i: Int): Option[Int] = Some(i)
+    val res = ado {
+      for {
+        given Int <- Some(2)
+        b <- getImplicit
+      } yield b
+    }
+    assertEquals(res, Some(2))
+  }
+
+  test("option comprehension 15") {
+    def getImplicit(using i: Int): Option[Int] = Some(i)
+    val res = ado {
+      for {
+        a <- Some(2)
+        given Int = 1
+        b <- getImplicit
+      } yield b
+    }
+    assertEquals(res, Some(1))
+  }
+
+  test("option comprehension 16") {
+    val res = ado {
+      for {
+        _ <- Some(2)
+        b = 1
+      } yield b
+    }
+    assertEquals(res, Some(1))
+  }
+
+  test("option comprehension 17") {
+    def getImplicit(using i: Int): Option[Int] = Some(i)
+    val res = ado {
+      for {
+        _ <- Some(2)
+        given Int = 1
+        b <- getImplicit
+      } yield b
+    }
+    assertEquals(res, Some(1))
   }
 
 }

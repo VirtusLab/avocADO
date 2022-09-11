@@ -272,10 +272,14 @@ private[avocado] object macros {
     private def adaptValDefAndBody(valdef: ValDef, body: Term): (List[VarRef], Term) = body match {
       case Match(Typed(Ident(name), tpt), List(CaseDef(ident@Ident(name1), _, term))) if name == valdef.name && name1 == "_" =>
         List(VarRef(ident.symbol, tpt, name1)) -> term
+      case Match(Typed(Ident(name), tpt),  List(CaseDef(bind@Bind(givenName, Typed(Ident(name1), _)), _, term))) if name == valdef.name && name1 == "_" && givenName.contains("given") =>
+        List(VarRef(bind.symbol, tpt, givenName)) -> term
       case Match(Typed(Ident(name), _), List(CaseDef(Unapply(TypeApply(Select(prefix, method), tpts), _, patterns), _, term))) if defn.isTupleClass(prefix.symbol.companionClass) && method == "unapply" =>
         patterns.zip(tpts).map {
           case (bind@Bind(name, _), tpt) =>
             VarRef(bind.symbol, tpt, name)
+          case (ident@Ident(name), tpt) =>
+            VarRef(ident.symbol, tpt, name)
         } -> term
       case _ =>
         List(VarRef(valdef.symbol, valdef.tpt, valdef.name)) -> body

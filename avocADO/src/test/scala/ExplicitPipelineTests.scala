@@ -11,7 +11,7 @@ class ExplicitPipelineTests extends munit.FunSuite {
     def flatMap[A, B](fa: Option[A], f: A => Option[B]): Option[B] = fa.flatMap(f)
   }
 
-  test("simple handwritten pipeline 1") {
+  test("handwritten pipeline 1") {
     val res = ado {
       Some(1).flatMap { a =>
         Some(2).map { b =>
@@ -22,7 +22,7 @@ class ExplicitPipelineTests extends munit.FunSuite {
     assertEquals(res, Some(3))
   }
 
-  test("simple handwritten pipeline 2") {
+  test("handwritten pipeline 2") {
     val res = ado {
       Some(1).flatMap { a =>
         Some(2).flatMap { b =>
