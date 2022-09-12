@@ -1,7 +1,7 @@
 package avocado.tests
 
 import avocado.*
-import avocado.future.given
+import avocado.instances.future.given
 
 import scala.concurrent.{ Future, Await }
 import scala.concurrent.duration._

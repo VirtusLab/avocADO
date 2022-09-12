@@ -1,5 +1,6 @@
-package avocado
+package avocado.instances
 
+import avocado.AvocADO
 import scala.concurrent.{ Future, ExecutionContext }
 
 object future {

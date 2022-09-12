@@ -1,7 +1,7 @@
 package avocado.tests
 
 import avocado.*
-import avocado.zio2.given
+import avocado.instances.zio2.given
 import scala.concurrent.duration.*
 import zio.*
 
