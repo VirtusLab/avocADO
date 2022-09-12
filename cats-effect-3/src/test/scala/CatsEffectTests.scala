@@ -1,7 +1,7 @@
 package avocado.tests
 
 import avocado.*
-import avocado.catseffect3.given
+import avocado.instances.catseffect3.given
 
 import scala.concurrent.duration.*
 import cats.effect.IO
@@ -307,5 +307,27 @@ class CatsEffectTests extends BaseCatsEffectTest {
       } yield b
     }
   }(1)
+
+  testWithTimeLimit("cats effect comprehension 25", 1400) {
+    val wait = IO.sleep(500.millis)
+    ado {
+      for {
+        a <- wait.map(_ => 1)
+        (b: Int) = 2
+        c <- wait.map(_ => b)
+      } yield a + c
+    }
+  }(3)
+
+  testWithTimeLimit("cats effect comprehension 26", 1400) {
+    val wait = IO.sleep(500.millis)
+    ado {
+      for {
+        a <- wait.map(_ => 1)
+        (b: Int) = a
+        c <- wait.map(_ => b)
+      } yield a + c
+    }
+  }(2)
 
 }

@@ -6,7 +6,7 @@
 import cats.effect.IO
 
 import avocado.*
-import avocado.catseffect3.given
+import avocado.instances.catseffect3.given
 
 val run: IO[Int] =
   ado {
