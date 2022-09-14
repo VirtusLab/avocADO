@@ -2,6 +2,7 @@ val scala3 = "3.2.0"
 
 val commonSettings = Seq(
   organization := "org.virtuslab",
+  description := "Safe compile-time parallelization of for-comprehensions for Scala 3",
   homepage := Some(url("https://github.com/VirtusLab/avocADO")),
   licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
   developers := List(
