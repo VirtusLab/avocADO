@@ -13,12 +13,13 @@ private[avocado] object macros {
 
     private case class VarRef(
       symbol: Symbol,
-      tpt: TypeTree,
       name: String
     )
 
     private case class Binding(
       varrefs: List[VarRef],
+      pattern: Tree,
+      tpe: TypeRepr,
       tree: Term,
       methodName: String,
       typeArgs: List[TypeRepr],
@@ -53,27 +54,26 @@ private[avocado] object macros {
     }
 
     private def connectBindings(bindings: List[(Binding, Set[Symbol])], res: Term)(using Context): Tree = {
-
-      def go(bindings: List[(Binding, Set[Symbol])], zipped: List[List[VarRef]], acc: Term, lastBinding: Binding): Term = bindings match {
+      def go(bindings: List[(Binding, Set[Symbol])], zipped: List[(Tree, TypeRepr)], acc: Term, lastBinding: Binding): Term = bindings match {
         case Nil =>
-          val arg = funForZipped(zipped, res, Symbol.spliceOwner)
+          val arg = funFromZipped(zipped, res, Symbol.spliceOwner)
           ctx.instance
             .select(ctx.instance.tpe.typeSymbol.methodMember(lastBinding.methodName).head)
-            .appliedToTypes(List(typeReprOfTuples(zipped), adaptTpeForMethod(res, lastBinding.methodName)))
+            .appliedToTypes(List(typeReprForBindings(zipped), adaptTpeForMethod(res, lastBinding.methodName)))
             .appliedToArgs(List(acc, arg))
         case _ =>
           val (toZip, rest, newLastBinding) = splitToZip(bindings)
-          val body = go(rest, toZip.map(_._1.varrefs), zipExprs(toZip), newLastBinding)
-          val arg = funForZipped(zipped, body, Symbol.spliceOwner)
+          val body = go(rest, toZip.map(b => b._1.pattern -> b._1.tpe), zipExprs(toZip.map(_._1)), newLastBinding)
+          val arg = funFromZipped(zipped, body, Symbol.spliceOwner)
           val tpes = lastBinding.typeArgs.map(_.widen)
           ctx.instance
             .select(ctx.instance.tpe.typeSymbol.methodMember(lastBinding.methodName).head)
-            .appliedToTypes(List(typeReprOfTuples(zipped), adaptTpeForMethod(body, lastBinding.methodName)))
+            .appliedToTypes(List(typeReprForBindings(zipped), adaptTpeForMethod(body, lastBinding.methodName)))
             .appliedToArgs(List(acc, arg))
       }
 
       val (toZip, rest, lastMethod) = splitToZip(bindings)
-      go(rest, toZip.map(_._1.varrefs), zipExprs(toZip), lastMethod)
+      go(rest, toZip.map(b => b._1.pattern -> b._1.tpe), zipExprs(toZip.map(_._1)), lastMethod)
     }
 
     private def adaptTpeForMethod(arg: Term, methodName: String): TypeRepr =
@@ -86,19 +86,19 @@ private[avocado] object macros {
       case AppliedType(_, args) => args.last
     }
 
-    private def doZip(receiver: Term, varrefs: List[VarRef], arg: Term)(using Context): Term = {
-      val receiverTypeSymbol = receiver.tpe.typeSymbol
-      val argTpe = extractTypeFromApplicative(arg.tpe)
-      ctx.instance
-        .select(ctx.instance.tpe.typeSymbol.methodMember("zip").head)
-        .appliedToTypes(List(typeReprFromVarRefs(varrefs).widen, argTpe.widen))
-        .appliedTo(receiver, arg)
-    }
-
-    private def zipExprs(toZip: List[(Binding, Set[Symbol])])(using Context): Term = {
-      toZip.init.foldRight(toZip.last._1.tree) {
-        case ((binding, _), acc) =>
-          doZip(binding.tree, binding.varrefs, acc)
+    private def zipExprs(toZip: List[Binding])(using Context): Term = {
+      def doZip(receiver: Term, receiverTpe: TypeRepr, arg: Term)(using Context): Term = {
+        val receiverTypeSymbol = receiver.tpe.typeSymbol
+        val argTpe = extractTypeFromApplicative(arg.tpe)
+        ctx.instance
+          .select(ctx.instance.tpe.typeSymbol.methodMember("zip").head)
+          .appliedToTypes(List(receiverTpe.widen, argTpe.widen))
+          .appliedTo(receiver, arg)
+      }
+      
+      toZip.init.foldRight(toZip.last.tree) {
+        case (binding, acc) =>
+          doZip(binding.tree, binding.tpe, acc)
       }
     }
 
@@ -130,108 +130,78 @@ private[avocado] object macros {
       
     }
 
-    private def typeReprFromVarRefs(varrefs: List[VarRef]): TypeRepr = varrefs match {
-      case List(varref) =>
-        varref.tpt.tpe
-      case _ =>
-        val tupleSym = defn.TupleClass(varrefs.size)
-        AppliedType(tupleSym.typeRef, varrefs.map(_.tpt.tpe))
+    private val tuple2: Term = Ref(Symbol.requiredModule("scala.Tuple2"))
+    private val tuple2Tpe: TypeRepr = Symbol.requiredClass("scala.Tuple2").typeRef
+
+    private def typeReprForBindings(zipped: List[(Tree, TypeRepr)]): TypeRepr = zipped match {
+      case Nil =>
+        throwGenericError()
+      case (_, tpe) :: Nil =>
+        tpe
+      case (_, tpe) :: zipped =>
+        AppliedType(tuple2Tpe, List(tpe, typeReprForBindings(zipped)))
     }
 
-    private val tuple2: Term = '{Tuple2}.asTerm.asInstanceOf[Inlined].body
-    private val AppliedType(tuple2Tpe: TypeRepr, _) = TypeRepr.of[Tuple2[Any, Any]]: @unchecked
+    private def funFromZipped(zipped: List[(Tree, TypeRepr)], body: Term, owner: Symbol): Term = {
 
-    private def typeReprOfTuples(zipped: List[List[VarRef]]): TypeRepr = zipped match {
-        case Nil =>
-          throwGenericError()
-        case head :: Nil =>
-          typeReprFromVarRefs(head)
-        case head :: zipped =>
-          AppliedType(
-            tuple2Tpe,
-            List(
-              typeReprFromVarRefs(head),
-              typeReprOfTuples(zipped)
-            )
-          )
-      }
-
-    private def funForZipped(zipped0: List[List[VarRef]], body: Term, owner: Symbol): Term = {
-
-      def shadowDuplicates(zipped: List[List[VarRef]]): List[List[VarRef]] = {
-        zipped.foldRight(List.empty[List[VarRef]] -> Set.empty) {
-          case (elem, (acc, prevs)) =>
-            val (accElem, prevs1) = elem.foldRight(List.empty[VarRef] -> prevs) {
-              case (e, (accElem, prev1)) =>
-                if prev1.contains(e.name) then
-                  (e.copy(name = "_") +: accElem) -> prev1
-                else
-                  (e +: accElem) -> (prev1 + e.name)
-            }
-            (accElem +: acc) -> prevs1
-        }._1
-      }
-
-      def makeBind(varref: VarRef, owner: Symbol): (Tree, Map[Symbol, Symbol]) = {
-        if varref.name == "_" then
+      def makeUnapplies(unaply: Tree, owner: Symbol, binds: Set[String]): (Tree, Map[Symbol, Symbol]) = unaply match {
+        case valdef: ValDef if valdef.name == "_" || binds.contains(valdef.name) =>
           Wildcard() -> Map.empty
-        else
-          val sym = Symbol.newBind(owner, varref.name, Flags.EmptyFlags, varref.tpt.tpe)
-          Bind(sym, Wildcard()) -> Map(varref.symbol -> sym)
-      }
-
-      def makeUnapplies(varrefs: List[VarRef], owner: Symbol): (Tree, Map[Symbol, Symbol]) = varrefs match {
-        case varref :: Nil =>
-          makeBind(varref, owner)
+        case Ident(name) if name == "_" =>
+          Wildcard() -> Map.empty
+        case valdef: ValDef =>
+          val sym = Symbol.newBind(owner, valdef.name, Flags.EmptyFlags, valdef.tpt.tpe)
+          Bind(sym, Wildcard()) -> Map(valdef.symbol -> sym)
+        case bind@Bind(name, pattern0) =>
+          val (pattern, renames) = makeUnapplies(pattern0, owner, binds)
+          val sym = Symbol.newBind(owner, name, Flags.EmptyFlags, bind.symbol.typeRef.widen)
+          Bind(sym, pattern) -> (renames + (bind.symbol -> sym))
+        case Typed(term, _) =>
+          val (pattern, renames) = makeUnapplies(term, owner, binds)
+          pattern -> renames
+        case unaply@Unapply(fun, implicits, patterns0) =>
+          val (patterns, renames, _) =
+            patterns0.foldRight((List.empty[Tree], Map.empty[Symbol, Symbol], binds)) {
+              case (p, (accList, accMap, bindsAcc)) =>
+                val (pattern, renames) = makeUnapplies(p, owner, bindsAcc)
+                ((pattern :: accList), (accMap ++ renames), bindsAcc ++ renames.keys.map(_.name).toSet)
+            }
+          Unapply.copy(unaply)(fun, implicits, patterns) -> renames
         case _ =>
-          val (binds, renames) = varrefs.map(makeBind(_, owner)).foldLeft(List.empty[Tree] -> Map.empty[Symbol, Symbol]) {
-            case ((accBinds, accRenames), (bind, renames)) =>
-              (accBinds :+ bind) -> (accRenames ++ renames)
-          }
-          val tupleModuleSym = defn.TupleClass(varrefs.size).companionModule
-          Unapply(
-            TypeApply(
-              Ref(tupleModuleSym).select(tupleModuleSym.methodMember("unapply").head),
-              varrefs.map(_.tpt)
-            ),
-            List.empty,
-            binds
-          ) -> renames
+          unaply.changeOwner(owner) -> Map.empty
       }
 
-      def unapplies(zipped: List[List[VarRef]], owner: Symbol): (Tree, Map[Symbol, Symbol]) = zipped match {
+      def unapplies(zipped: List[(Tree, TypeRepr)], owner: Symbol): (Tree, Map[Symbol, Symbol]) = zipped match {
         case Nil =>
           throwGenericError()
-        case head :: Nil =>
-          makeUnapplies(head, owner)
-        case head :: zipped =>
-          val (bind, renames) = makeUnapplies(head, owner)
-          val (tree, binds) = unapplies(zipped, owner)
+        case (pattern, tpe) :: Nil =>
+          makeUnapplies(pattern, owner, Set.empty)
+        case (pattern0, tpe) :: zipped =>
+          val (restPattern, restRenames) = unapplies(zipped, owner)
+          val (pattern, renames) = makeUnapplies(pattern0, owner, restRenames.keys.map(_.name).toSet)
           Unapply(
-            TypeApply(
+            fun = TypeApply(
               Select(tuple2, tuple2.tpe.typeSymbol.methodMember("unapply").head),
               List(
-                Inferred(typeReprFromVarRefs(head)),
-                Inferred(typeReprOfTuples(zipped))
+                Inferred(tpe),
+                Inferred(typeReprForBindings(zipped))
               )
             ),
-            List.empty,
-            List(
-              bind,
-              tree
+            implicits = List.empty,
+            patterns = List(
+              pattern,
+              restPattern
             )
-          ) -> (binds ++ renames)
+          ) -> (restRenames ++ renames)
       }
-
-      val zipped = shadowDuplicates(zipped0)
 
       val defdefSymbol = Symbol.newMethod(
         owner,
-        "$anonfun",
-        MethodType(List("syth$x$"))(_ => List(typeReprOfTuples(zipped)), _ => body.tpe.widen)
+        "$anonfun$synth",
+        MethodType(List("syth$x$"))(_ => List(typeReprForBindings(zipped)), _ => body.tpe.widen)
       )
 
-      val (pattern, binds) = unapplies(zipped, defdefSymbol)
+      val (pattern, renames) = unapplies(zipped, defdefSymbol)
 
       val defdefStatements = DefDef(
         defdefSymbol,
@@ -243,7 +213,7 @@ private[avocado] object macros {
                   CaseDef(
                     pattern,
                     None,
-                    body.alphaRename(binds).changeOwner(defdefSymbol)
+                    body.alphaRename(renames).changeOwner(defdefSymbol)
                   )
                 )
               )
@@ -258,8 +228,64 @@ private[avocado] object macros {
     def throwGenericError(): Nothing =
       report.errorAndAbort("Oopsie, wrong argument passed to ado!")
 
+    private def supportedRewriteMethod(name: String): Boolean =
+      List("flatMap", "map").contains(name)
+
     //TODO(kπ) maybe should be more generic
-    private def extractBodyAndVarRefs(expr: Term): Option[(List[VarRef], Term)] = expr match {
+    private def toBindings(exprTerm: Term, acc: List[Binding] = List.empty)(using Context): (List[Binding], Term) = exprTerm match {
+      case FromTypeclassAllowed(expr, evidences, methodName, typeArgs, arg) =>
+        extractBodyAndVarRefs(arg) match {
+          case Some((varrefs, unaply, tpt, body)) =>
+            toBindings(body, Binding(varrefs, unaply, tpt, expr, methodName, typeArgs.map(_.tpe), evidences) :: acc)
+          case _ =>
+            acc.reverse -> exprTerm
+        }
+      case NormalAllowed(expr, methodName, typeArgs, arg) =>
+        extractBodyAndVarRefs(arg) match {
+          case Some((varrefs, unaply, tpt, body)) =>
+            toBindings(body, Binding(varrefs, unaply, tpt, expr, methodName, typeArgs.map(_.tpe), List.empty) :: acc)
+          case _ =>
+            acc.reverse -> exprTerm
+        }
+      case WithImplicitsAllowed(expr, args, methodName, typeArgs, arg) =>
+        extractBodyAndVarRefs(arg) match {
+          case Some((varrefs, unaply, tpt, body)) =>
+            toBindings(body, Binding(varrefs, unaply, tpt, expr, methodName, typeArgs.map(_.tpe), args) :: acc)
+          case _ =>
+            acc.reverse -> exprTerm
+        }
+      case Block(List(), exprTerm) =>
+        toBindings(exprTerm, acc)
+      case _ =>
+        acc.reverse -> exprTerm
+    }
+
+    private object FromTypeclassAllowed {
+      def unapply(using Context)(term: Term): Option[(Term, List[Term], String, List[TypeTree], Term)] = term match
+        case Apply(TypeApply(Select(Apply(Apply(TypeApply(_, targs), List(expr)), evidences), methodName), typeArgs), List(arg))
+        if supportedRewriteMethod(methodName) && targs.map(_.tpe.typeSymbol).contains(ctx.fTpe.typeSymbol) =>
+          Some((expr, evidences, methodName, typeArgs, arg))
+        case _ => None
+    }
+
+    private object NormalAllowed {
+      def unapply(term: Term): Option[(Term, String, List[TypeTree], Term)] = term match
+        case Apply(TypeApply(Select(expr, methodName), typeArgs), List(arg))
+        if supportedRewriteMethod(methodName) =>
+          Some((expr, methodName, typeArgs, arg))
+        case _ => None
+    }
+
+    private object WithImplicitsAllowed {
+      def unapply(term: Term): Option[(Term, List[Term], String, List[TypeTree], Term)] = term match
+        case Apply(Apply(TypeApply(Select(expr, methodName), typeArgs), List(arg)), args)
+        if supportedRewriteMethod(methodName) =>
+          Some((expr, args, methodName, typeArgs, arg))
+        case _ => None
+    }
+
+    //TODO(kπ) maybe should be more generic
+    private def extractBodyAndVarRefs(expr: Term): Option[(List[VarRef], Tree, TypeRepr, Term)] = expr match {
       case Block(List(DefDef(_, List(TermParamClause(List(valdef))), _, Some(rest))), _) =>
         Some(adaptValDefAndBody(valdef, rest))
       case Block(List(), expr) =>
@@ -269,55 +295,28 @@ private[avocado] object macros {
     }
 
     //TODO(kπ) this can probably give false positives
-    private def adaptValDefAndBody(valdef: ValDef, body: Term): (List[VarRef], Term) = body match {
-      case Match(Typed(Ident(name), tpt), List(CaseDef(ident@Ident(name1), _, term))) if name == valdef.name && name1 == "_" =>
-        List(VarRef(ident.symbol, tpt, name1)) -> term
-      case Match(Typed(Ident(name), tpt),  List(CaseDef(bind@Bind(givenName, Typed(Ident(name1), _)), _, term))) if name == valdef.name && name1 == "_" && givenName.contains("given") =>
-        List(VarRef(bind.symbol, tpt, givenName)) -> term
-      case Match(Typed(Ident(name), _), List(CaseDef(Unapply(TypeApply(Select(prefix, method), tpts), _, patterns), _, term))) if defn.isTupleClass(prefix.symbol.companionClass) && method == "unapply" =>
-        patterns.zip(tpts).map {
-          case (bind@Bind(name, _), tpt) =>
-            VarRef(bind.symbol, tpt, name)
-          case (ident@Ident(name), tpt) =>
-            VarRef(ident.symbol, tpt, name)
-        } -> term
+    private def adaptValDefAndBody(valdef: ValDef, body: Term): (List[VarRef], Tree, TypeRepr, Term) = body match {
+      case Match(Typed(Ident(name), tpt), List(CaseDef(pattern, _, term))) if name == valdef.name =>
+        (extractVarRefs(pattern), pattern, tpt.tpe.widen.dealias, term)
       case _ =>
-        List(VarRef(valdef.symbol, valdef.tpt, valdef.name)) -> body
+        (List(VarRef(valdef.symbol, valdef.name)), valdef, valdef.tpt.tpe.widen.dealias, body)
     }
 
-    private def supportedMethodInChain(name: String): Boolean =
-      List("flatMap", "map").contains(name)
-
-    //TODO(kπ) maybe should be more generic
-    private def toBindings(exprTerm: Term, acc: List[Binding] = List.empty)(using Context): (List[Binding], Term) = exprTerm match
-      case Apply(TypeApply(Select(Apply(Apply(TypeApply(ops, targs), List(expr)), evidences), methodName), typeArgs), List(arg))
-      if supportedMethodInChain(methodName) && targs.map(_.tpe.typeSymbol).contains(ctx.fTpe.typeSymbol) =>
-        extractBodyAndVarRefs(arg) match {
-          case Some((varrefs, body)) =>
-            toBindings(body, Binding(varrefs, expr, methodName, typeArgs.map(_.tpe), evidences) :: acc)
-          case _ =>
-            acc.reverse -> exprTerm
+    private def extractVarRefs(tree: Tree): List[VarRef] = {
+      object accumulator extends TreeAccumulator[List[VarRef]] {
+        override def foldTree(acc: List[VarRef], tree: Tree)(owner: Symbol): List[VarRef] = tree match {
+          case bind@Bind(name, pattern) =>
+            foldTree(acc :+ VarRef(bind.symbol, name), pattern)(owner)
+          case ident@Ident(name) =>
+            acc :+ VarRef(ident.symbol, name)
+          case Unapply(_, _, patterns) =>
+            foldTrees(acc, patterns)(owner)
+          case tree =>
+            super.foldOverTree(acc, tree)(owner)
         }
-      case Apply(TypeApply(Select(expr, methodName), typeArgs), List(arg))
-      if supportedMethodInChain(methodName) =>
-        extractBodyAndVarRefs(arg) match {
-          case Some((varrefs, body)) =>
-            toBindings(body, Binding(varrefs, expr, methodName, typeArgs.map(_.tpe), List.empty) :: acc)
-          case _ =>
-            acc.reverse -> exprTerm
-        }
-      case Apply(Apply(TypeApply(Select(expr, methodName), typeArgs), List(arg)), args)
-      if supportedMethodInChain(methodName) =>
-        extractBodyAndVarRefs(arg) match {
-          case Some((varrefs, body)) =>
-            toBindings(body, Binding(varrefs, expr, methodName, typeArgs.map(_.tpe), args) :: acc)
-          case _ =>
-            acc.reverse -> exprTerm
-        }
-      case Block(List(), exprTerm) =>
-        toBindings(exprTerm, acc)
-      case _ =>
-        acc.reverse -> exprTerm
+      }
+      accumulator.foldTree(List.empty, tree)(Symbol.spliceOwner)
+    }
 
     extension [T <: Tree](tree: T)
       private def alphaRename(renames: Map[Symbol, Symbol]): T = {
@@ -329,21 +328,6 @@ private[avocado] object macros {
               super.transformTerm(tree)(owner)
           }
         treeMap.transformTree(tree)(Symbol.spliceOwner).asInstanceOf[T]
-      }
-
-    extension (term: Term)
-      private def appliedToArgsIfNeeded(args: List[Term]): Term = {
-        if args.isEmpty then
-          term
-        else
-          term.appliedToArgs(args)
-      }
-    
-    extension (tpe: TypeRepr)
-      private def doWhatYouCanHACK: TypeRepr = tpe match {
-        case AndType(lo, hi) => lo
-        case OrType(lo, hi) => lo
-        case _ => tpe
       }
 
     private def getBindingDependencies(tree: Tree, bindingVals: Set[VarRef] = Set.empty): Set[Symbol] = {
