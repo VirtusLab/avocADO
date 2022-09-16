@@ -330,4 +330,162 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(2)
 
+  testWithTimeLimit("cats effect comprehension 27", 1400) {
+    val wait = IO.sleep(500.millis)
+    ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        c <- wait.map(_ => a + 2)
+        d <- wait.map(_ => 4)
+        (e, f) = (1 -> 2)
+      } yield c + b
+    }
+  }(5)
+
+  testWithTimeLimit("cats effect comprehension 28", 1400) {
+    val wait = IO.sleep(500.millis)
+    ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        c <- wait.map(_ => a + 2)
+        d <- wait.map(_ => 4)
+        (g: Int) = 3
+      } yield c + b
+    }
+  }(5)
+
+  testWithTimeLimit("cats effect comprehension 29", 1400) {
+    val wait = IO.sleep(500.millis)
+    ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        c <- wait.map(_ => a + 2)
+        d <- wait.map(_ => 4)
+        2 = 2
+      } yield c + b
+    }
+  }(5)
+
+  testWithTimeLimit("cats effect comprehension 30", 1400) {
+    val wait = IO.sleep(500.millis)
+    case class C(i: Int)
+    ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        c <- wait.map(_ => a + 2)
+        d <- wait.map(_ => 4)
+        C(i) = C(5)
+      } yield c + b
+    }
+  }(5)
+
+  testWithTimeLimit("cats effect comprehension 31", 1400) {
+    val wait = IO.sleep(500.millis)
+    case class C(i: Int)
+    ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        c <- wait.map(_ => a + 2)
+        d <- wait.map(_ => 4)
+        cc@C(i) = C(5)
+      } yield c + b
+    }
+  }(5)
+
+  testWithTimeLimit("cats effect comprehension 32", 1400) {
+    val wait = IO.sleep(500.millis)
+    object obj {
+      case class AClass[T](t: T)
+    }
+    ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        c <- wait.map(_ => a + 2)
+        d <- wait.map(_ => 4)
+        obj.AClass[Int](t) = obj.AClass(1)
+      } yield c + b
+    }
+  }(5)
+
+  testWithTimeLimit("cats effect comprehension 33", 1400) {
+    val wait = IO.sleep(500.millis)
+    object obj {
+      case class AClass[T](t: T)
+    }
+    ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        c <- wait.map(_ => a + 2)
+        d <- wait.map(_ => 4)
+        obj.AClass[Int](1) = obj.AClass(1)
+      } yield c + b
+    }
+  }(5)
+
+  testWithTimeLimit("cats effect comprehension 34", 1400) {
+    val wait = IO.sleep(500.millis)
+    object obj {
+      case class AClass[T](t: T)
+    }
+    ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        c <- wait.map(_ => a + 2)
+        d <- wait.map(_ => 4)
+        obj.AClass[Int](1) = obj.AClass(1): @unchecked
+      } yield c + b
+    }
+  }(5)
+
+  testWithTimeLimit("cats effect comprehension 35", 1400) {
+    val wait = IO.sleep(500.millis)
+    case class C(i: Int)
+    ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        c <- wait.map(_ => a + 2)
+        cc@C(i) = C(c)
+        d <- wait.map(_ => 4)
+      } yield c + b
+    }
+  }(5)
+
+  testWithTimeLimit("cats effect comprehension 36", 1400) {
+    val wait = IO.sleep(500.millis)
+    case class C(i: Int)
+    ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        c <- wait.map(_ => a + 2)
+        C(i) = C(a)
+        d <- wait.map(_ => 4)
+      } yield c + b
+    }
+  }(5)
+
+  testWithTimeLimit("cats effect comprehension 37", 1900) {
+    val wait = IO.sleep(500.millis)
+    case class C(i: Int)
+    ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        c <- wait.map(_ => a + 2)
+        d <- wait.map(_ => 4)
+        _ <- wait
+        C(i) = C(c)
+      } yield c + b
+    }
+  }(5)
+
 }
