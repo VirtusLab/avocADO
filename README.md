@@ -31,7 +31,7 @@ for {
 
 `avocADO` is a small library that allows for automatic rewriting of `for` comprehensions to their parallel versions.
 
-The name `avocADO` is a pun on the most important function exposed by the library -- `ado` (name taken from Haskell's language extension `ApplicativeDo`).
+The name `avocADO` is a pun on the most important function exposed by the library - `ado` (name taken from Haskell's language extension `ApplicativeDo`).
 
 ## References
 
