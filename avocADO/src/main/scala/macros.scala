@@ -64,7 +64,7 @@ private[avocado] object macros {
             .appliedToArgs(List(acc, arg))
         case _ =>
           val (toZip, rest, newLastBinding) = splitToZip(bindings)
-          val body = go(rest, toZip.map(b => b._1.pattern -> b._1.tpe), zipExprs(toZip.map(_._1)), newLastBinding)
+          val body = go(rest, toZip.map(b => b._1.pattern -> b._1.tpe), zipExprs(toZip.map(_._1), Symbol.spliceOwner), newLastBinding)
           val arg = funFromZipped(zipped, body, Symbol.spliceOwner)
           val tpes = lastBinding.typeArgs.map(_.widen)
           ctx.instance
@@ -74,7 +74,7 @@ private[avocado] object macros {
       }
 
       val (toZip, rest, lastMethod) = splitToZip(bindings)
-      go(rest, toZip.map(b => b._1.pattern -> b._1.tpe), zipExprs(toZip.map(_._1)), lastMethod)
+      go(rest, toZip.map(b => b._1.pattern -> b._1.tpe), zipExprs(toZip.map(_._1), Symbol.spliceOwner), lastMethod)
     }
 
     private def adaptTpeForMethod(arg: Term, methodName: String): TypeRepr =
@@ -87,7 +87,7 @@ private[avocado] object macros {
       case AppliedType(_, args) => args.last
     }
 
-    private def zipExprs(toZip: List[Binding])(using Context): Term = {
+    private def zipExprs(toZip: List[Binding], owner: Symbol)(using Context): Term = {
       def doZip(receiver: Term, receiverTpe: TypeRepr, arg: Term)(using Context): Term = {
         val receiverTypeSymbol = receiver.tpe.typeSymbol
         val argTpe = extractTypeFromApplicative(arg.tpe)
@@ -100,7 +100,7 @@ private[avocado] object macros {
       toZip.init.foldRight(toZip.last.tree) {
         case (binding, acc) =>
           doZip(binding.tree, binding.tpe, acc)
-      }
+      }.changeOwner(owner)
     }
 
     private def splitToZip(bindings: List[(Binding, Set[Symbol])]): (List[(Binding, Set[Symbol])], List[(Binding, Set[Symbol])], Binding) = {
