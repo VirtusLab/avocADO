@@ -13,6 +13,14 @@ val commonSettings = Seq(
       url("https://twitter.com/KacperKorban")
     )
   ),
+  scalacOptions ++= Seq(
+    "-Xcheck-macros",
+    "-Ycheck:inlining",
+    "-explain",
+    "-deprecation",
+    "-unchecked",
+    "-feature"
+  ),
   libraryDependencies ++= Seq(
     "org.scalameta" %%% "munit" % "0.7.29" % Test
   )
@@ -35,14 +43,7 @@ lazy val avocado = projectMatrix
   .in(file("avocADO"))
   .settings(commonSettings)
   .settings(
-    name := "avocADO",
-    scalacOptions ++= Seq(
-      "-Xcheck-macros",
-      "-explain",
-      "-deprecation",
-      "-unchecked",
-      "-feature"
-    )
+    name := "avocADO"
   )
   .jvmPlatform(scalaVersions = List(scala3))
 

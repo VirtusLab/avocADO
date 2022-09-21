@@ -1,6 +1,7 @@
 package avocado
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.quoted.*
 
 private[avocado] object macros {
@@ -63,7 +64,7 @@ private[avocado] object macros {
             .appliedToArgs(List(acc, arg))
         case _ =>
           val (toZip, rest, newLastBinding) = splitToZip(bindings)
-          val body = go(rest, toZip.map(b => b._1.pattern -> b._1.tpe), zipExprs(toZip.map(_._1)), newLastBinding)
+          val body = go(rest, toZip.map(b => b._1.pattern -> b._1.tpe), zipExprs(toZip.map(_._1), Symbol.spliceOwner), newLastBinding)
           val arg = funFromZipped(zipped, body, Symbol.spliceOwner)
           val tpes = lastBinding.typeArgs.map(_.widen)
           ctx.instance
@@ -73,7 +74,7 @@ private[avocado] object macros {
       }
 
       val (toZip, rest, lastMethod) = splitToZip(bindings)
-      go(rest, toZip.map(b => b._1.pattern -> b._1.tpe), zipExprs(toZip.map(_._1)), lastMethod)
+      go(rest, toZip.map(b => b._1.pattern -> b._1.tpe), zipExprs(toZip.map(_._1), Symbol.spliceOwner), lastMethod)
     }
 
     private def adaptTpeForMethod(arg: Term, methodName: String): TypeRepr =
@@ -86,7 +87,7 @@ private[avocado] object macros {
       case AppliedType(_, args) => args.last
     }
 
-    private def zipExprs(toZip: List[Binding])(using Context): Term = {
+    private def zipExprs(toZip: List[Binding], owner: Symbol)(using Context): Term = {
       def doZip(receiver: Term, receiverTpe: TypeRepr, arg: Term)(using Context): Term = {
         val receiverTypeSymbol = receiver.tpe.typeSymbol
         val argTpe = extractTypeFromApplicative(arg.tpe)
@@ -99,7 +100,7 @@ private[avocado] object macros {
       toZip.init.foldRight(toZip.last.tree) {
         case (binding, acc) =>
           doZip(binding.tree, binding.tpe, acc)
-      }
+      }.changeOwner(owner)
     }
 
     private def splitToZip(bindings: List[(Binding, Set[Symbol])]): (List[(Binding, Set[Symbol])], List[(Binding, Set[Symbol])], Binding) = {
@@ -144,31 +145,42 @@ private[avocado] object macros {
 
     private def funFromZipped(zipped: List[(Tree, TypeRepr)], body: Term, owner: Symbol): Term = {
 
-      def makeUnapplies(unaply: Tree, owner: Symbol, binds: Set[String]): (Tree, Map[Symbol, Symbol]) = unaply match {
-        case valdef: ValDef if valdef.name == "_" || binds.contains(valdef.name) =>
-          Wildcard() -> Map.empty
-        case Ident(name) if name == "_" =>
-          Wildcard() -> Map.empty
-        case valdef: ValDef =>
-          val sym = Symbol.newBind(owner, valdef.name, Flags.EmptyFlags, valdef.tpt.tpe)
-          Bind(sym, Wildcard()) -> Map(valdef.symbol -> sym)
-        case bind@Bind(name, pattern0) =>
-          val (pattern, renames) = makeUnapplies(pattern0, owner, binds)
-          val sym = Symbol.newBind(owner, name, Flags.EmptyFlags, bind.symbol.typeRef.widen)
-          Bind(sym, pattern) -> (renames + (bind.symbol -> sym))
-        case Typed(term, _) =>
-          val (pattern, renames) = makeUnapplies(term, owner, binds)
-          pattern -> renames
-        case unaply@Unapply(fun, implicits, patterns0) =>
-          val (patterns, renames, _) =
-            patterns0.foldRight((List.empty[Tree], Map.empty[Symbol, Symbol], binds)) {
-              case (p, (accList, accMap, bindsAcc)) =>
-                val (pattern, renames) = makeUnapplies(p, owner, bindsAcc)
-                ((pattern :: accList), (accMap ++ renames), bindsAcc ++ renames.keys.map(_.name).toSet)
-            }
-          Unapply.copy(unaply)(fun, implicits, patterns) -> renames
-        case _ =>
-          unaply.changeOwner(owner) -> Map.empty
+      def makeUnapplies(unaply: Tree, owner: Symbol, binds0: Set[String]): (Tree, Map[Symbol, Symbol]) = {
+        val renamesRes = mutable.Map.empty[Symbol, Symbol] // sorry :/
+        def binds = renamesRes.values.map(_.name).toSet ++ binds0
+        object mapper extends TreeMap {
+          override def transformTerm(tree: Term)(owner: Symbol): Term = tree match {
+            case Ident(name) if name == "_" =>
+              Wildcard()
+            case _ =>
+              super.transformTerm(tree)(owner)
+          }
+          override def transformTree(tree: Tree)(owner: Symbol): Tree = tree match {
+            case valdef: ValDef if valdef.name == "_" || binds.contains(valdef.name) =>
+              Wildcard()
+            case valdef: ValDef =>
+              val sym = Symbol.newBind(owner, valdef.name, Flags.EmptyFlags, valdef.tpt.tpe)
+              renamesRes += (valdef.symbol -> sym)
+              Bind(sym, Wildcard())
+            case bind@Bind(name, pattern0) =>
+              val sym = Symbol.newBind(owner, name, Flags.EmptyFlags, bind.symbol.typeRef.widen)
+              renamesRes += (bind.symbol -> sym)
+              Bind(sym, transformTree(pattern0)(owner))
+            case Typed(term, _) =>
+              transformTerm(term)(owner)
+            case unaply@Unapply(fun, implicits, patterns0) =>
+              val patterns =
+                patterns0.foldRight(List.empty[Tree]) {
+                  case (p, accList) =>
+                    val pattern = transformTree(p)(owner)
+                    pattern :: accList
+                }
+              Unapply.copy(unaply)(fun, implicits, patterns).changeOwner(owner)
+            case _ =>
+              super.transformTree(tree)(owner).changeOwner(owner)
+          }
+        }
+        mapper.transformTree(unaply)(owner) -> renamesRes.to(Map)
       }
 
       def unapplies(zipped: List[(Tree, TypeRepr)], owner: Symbol): (Tree, Map[Symbol, Symbol]) = zipped match {

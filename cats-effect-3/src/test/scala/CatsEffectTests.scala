@@ -488,4 +488,49 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(5)
 
+  testWithTimeLimit("cats effect comprehension 38", 1900) {
+    val wait = IO.sleep(500.millis)
+    case class C(i: Int*)
+    ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        c <- wait.map(_ => a + 2)
+        d <- wait.map(_ => 4)
+        _ <- wait
+        C(i, j, k) = C(1, 2, 3)
+      } yield (c + b, i, j, k)
+    }
+  }((5, 1, 2, 3))
+
+  testWithTimeLimit("cats effect comprehension 39", 1900) {
+    val wait = IO.sleep(500.millis)
+    case class C(i: Int)
+    ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        c <- wait.map(_ => 3)
+        C(i) = C(1)
+        d <- wait.map(_ => 4)
+        _ <- wait
+      } yield (c, i)
+    }
+  }((3, 1))
+
+  testWithTimeLimit("cats effect comprehension 40", 1900) {
+    val wait = IO.sleep(500.millis)
+    case class C(i: Int*)
+    ado {
+      for {
+        a <- wait.map(_ => 1)
+        b <- wait.map(_ => 2)
+        c <- wait.map(_ => 3)
+        C(i, j, k) = C(1, 2, 3)
+        d <- wait.map(_ => 4)
+        _ <- wait
+      } yield (c + b, i, j, k)
+    }
+  }((5, 1, 2, 3))
+
 }

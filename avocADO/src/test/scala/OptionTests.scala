@@ -213,4 +213,50 @@ class OptionTests extends munit.FunSuite {
     assertEquals(res, Some(3))
   }
 
+  test("option comprehension 19") {
+    val res = ado {
+      for {
+        a <- Some(1)
+        _ <- Some(2)
+        (_, a) = (3, 4)
+      } yield a
+    }
+    assertEquals(res, Some(4))
+  }
+
+  test("option comprehension 20") {
+    val res = ado {
+      for {
+        a <- Some(1)
+        _ <- Some(2)
+        (_, (_, a)) = (3, (4, 5))
+      } yield a
+    }
+    assertEquals(res, Some(5))
+  }
+
+  test("option comprehension 21") {
+    case class C(i: Int, j: Int)
+    val res = ado {
+      for {
+        a <- Some(1)
+        _ <- Some(2)
+        C(_, a) = C(3, 4)
+      } yield a
+    }
+    assertEquals(res, Some(4))
+  }
+
+  test("option comprehension 22") {
+    case class C(i: Int*)
+    val res = ado {
+      for {
+        a <- Some(1)
+        _ <- Some(2)
+        C(_, a) = C(3, 4)
+      } yield a
+    }
+    assertEquals(res, Some(4))
+  }
+
 }
