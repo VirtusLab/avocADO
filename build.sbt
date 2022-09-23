@@ -37,6 +37,7 @@ lazy val root = project
     avocado.projectRefs
       ++ catsEffect3.projectRefs
       ++ zio2.projectRefs
+      ++ zio1.projectRefs
   )*)
 
 lazy val avocado = projectMatrix
@@ -66,6 +67,18 @@ lazy val zio2 = projectMatrix
     name := "avocADO-zio-2",
     libraryDependencies ++= Seq(
       "dev.zio" %%% "zio" % "2.0.0"
+    )
+  )
+  .dependsOn(avocado)
+  .jvmPlatform(scalaVersions = List(scala3))
+
+lazy val zio1 = projectMatrix
+  .in(file("zio-1"))
+  .settings(commonSettings)
+  .settings(
+    name := "avocADO-zio-1",
+    libraryDependencies ++= Seq(
+      "dev.zio" %% "zio" % "1.0.17"
     )
   )
   .dependsOn(avocado)
