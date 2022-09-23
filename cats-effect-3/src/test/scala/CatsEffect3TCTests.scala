@@ -10,7 +10,7 @@ import cats.syntax.all.*
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 
-class CatsEffectTCTests extends BaseCatsEffectTest {
+class CatsEffectTCTests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect comprehension with typeclasses 1", 900) {
     val wait = IO.sleep(500.millis)

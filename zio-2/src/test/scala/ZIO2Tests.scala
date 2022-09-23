@@ -5,7 +5,7 @@ import avocado.instances.zio2.given
 import scala.concurrent.duration.*
 import zio.*
 
-class ZIOTests extends BaseZIOTest {
+class ZIO2Tests extends BaseZIO2Test {
 
   testWithTimeLimit("ZIO comprehension 1", 900) {
     val wait = ZIO.sleep(500.millis)

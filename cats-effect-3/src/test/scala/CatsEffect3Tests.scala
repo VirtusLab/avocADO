@@ -7,7 +7,7 @@ import scala.concurrent.duration.*
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 
-class CatsEffectTests extends BaseCatsEffectTest {
+class CatsEffectTests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect comprehension 1", 900) {
     val wait = IO.sleep(500.millis)

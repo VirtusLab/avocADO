@@ -2,7 +2,7 @@ package avocado.tests
 
 import zio.*
 
-abstract class BaseZIOTest extends munit.FunSuite {
+abstract class BaseZIO2Test extends munit.FunSuite {
 
   def testWithTimeLimit[R, E, A](name: String, maxMillis: Long)(body: ZIO[R, E, A])(expected: Either[E, A]): Unit = {
     test(name) {

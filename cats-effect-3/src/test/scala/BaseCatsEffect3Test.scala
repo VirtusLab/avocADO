@@ -3,7 +3,7 @@ package avocado.tests
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 
-abstract class BaseCatsEffectTest extends munit.FunSuite {
+abstract class BaseCatsEffect3Test extends munit.FunSuite {
 
   def testWithTimeLimit[A](name: String, maxMillis: Long)(body: IO[A])(expected: A): Unit = {
     test(name) {
