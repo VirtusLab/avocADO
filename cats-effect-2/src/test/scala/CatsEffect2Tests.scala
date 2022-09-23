@@ -1,86 +1,88 @@
 package avocado.tests
 
 import avocado.*
-import avocado.instances.zio2.given
+import avocado.instances.catseffect2.given
+
 import scala.concurrent.duration.*
-import zio.*
+import cats.effect.IO
+import cats.effect.IO.given
 
-class ZIO2Tests extends BaseZIO2Test {
+class CatsEffect2Tests extends BaseCatsEffect2Test {
 
-  testWithTimeLimit("ZIO2 comprehension 1", 900) {
-    val wait = ZIO.sleep(500.millis)
+  testWithTimeLimit("cats effect 2 comprehension 1", 900) {
+    val wait = IO.sleep(500.millis)
     ado {
       for {
-        a <- ZIO.succeed(1)
+        a <- IO(1)
       } yield a
     }
-  }(Right(1))
+  }(1)
 
-  testWithTimeLimit("ZIO2 comprehension 2", 900) {
-    val wait = ZIO.sleep(500.millis)
+  testWithTimeLimit("cats effect 2 comprehension 2", 900) {
+    val wait = IO.sleep(500.millis)
     ado {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
       } yield a + b
     }
-  }(Right(3))
+  }(3)
 
-  testWithTimeLimit("ZIO2 comprehension 3", 1400) {
-    val wait = ZIO.sleep(500.millis)
+  testWithTimeLimit("cats effect 2 comprehension 3", 1400) {
+    val wait = IO.sleep(500.millis)
     ado {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
-        c <- ZIO.succeed(a + b)
+        c <- IO(a + b)
         d <- wait.map(_ => 4)
       } yield c + d
     }
-  }(Right(7))
+  }(7)
 
-  testWithTimeLimit("ZIO2 comprehension 4", 1400) {
-    val wait = ZIO.sleep(500.millis)
+  testWithTimeLimit("cats effect 2 comprehension 4", 1400) {
+    val wait = IO.sleep(500.millis)
     ado {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
-        c <- ZIO.succeed(a + b)
+        c <- IO(a + b)
         d <- wait.map(_ => 4)
         e <- wait.map(Function.const(5))
       } yield c + d
     }
-  }(Right(7))
+  }(7)
 
-  testWithTimeLimit("ZIO2 comprehension 5", 1400) {
-    val wait = ZIO.sleep(500.millis)
+  testWithTimeLimit("cats effect 2 comprehension 5", 1400) {
+    val wait = IO.sleep(500.millis)
     ado {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
-        c <- ZIO.succeed(a + b)
+        c <- IO(a + b)
         d <- wait.map(_ => 4)
         e <- wait
       } yield c + d
     }
-  }(Right(7))
+  }(7)
 
-  testWithTimeLimit("ZIO2 comprehension 6", 1400) {
-    val wait = ZIO.sleep(500.millis)
+  testWithTimeLimit("cats effect 2 comprehension 6", 1400) {
+    val wait = IO.sleep(500.millis)
     ado {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
-        c <- ZIO.succeed(a + b)
+        c <- IO(a + b)
         d <- wait.map(_ => 4)
         e <- wait
         f <- wait
         g <- wait.map(Function.const(7))
       } yield c + d + g
     }
-  }(Right(14))
+  }(14)
 
-  testWithTimeLimit("ZIO2 comprehension 7", 900) {
-    val wait = ZIO.sleep(500.millis)
+  testWithTimeLimit("cats effect 2 comprehension 7", 900) {
+    val wait = IO.sleep(500.millis)
     ado {
       for {
         a <- wait.map(_ => 1)
@@ -88,10 +90,10 @@ class ZIO2Tests extends BaseZIO2Test {
         _ <- wait
       } yield a + b
     }
-  }(Right(3))
-  
-  testWithTimeLimit("ZIO2 comprehension 8", 900) {
-    val wait = ZIO.sleep(500.millis)
+  }(3)
+
+  testWithTimeLimit("cats effect 2 comprehension 8", 900) {
+    val wait = IO.sleep(500.millis)
     ado {
       for {
         a <- wait.map(_ => 1)
@@ -100,10 +102,10 @@ class ZIO2Tests extends BaseZIO2Test {
         c <- wait.map(_ => 3)
       } yield a + b
     }
-  }(Right(3))
+  }(3)
 
-  testWithTimeLimit("ZIO2 comprehension 9", 900) {
-    val wait = ZIO.sleep(500.millis)
+  testWithTimeLimit("cats effect 2 comprehension 9", 900) {
+    val wait = IO.sleep(500.millis)
     ado {
       for {
         _ <- wait
@@ -113,10 +115,10 @@ class ZIO2Tests extends BaseZIO2Test {
         c <- wait.map(_ => 3)
       } yield a + b
     }
-  }(Right(3))
+  }(3)
 
-  testWithTimeLimit("ZIO2 comprehension 10", 1400) {
-    val wait = ZIO.sleep(500.millis)
+  testWithTimeLimit("cats effect 2 comprehension 10", 1400) {
+    val wait = IO.sleep(500.millis)
     ado {
       for {
         a <- wait.map(_ => 1)
@@ -125,10 +127,10 @@ class ZIO2Tests extends BaseZIO2Test {
         c <- wait.map(_ => 3)
       } yield a + b
     }
-  }(Right(3))
+  }(3)
 
-  testWithTimeLimit("ZIO2 comprehension 11", 900) {
-    val wait = ZIO.sleep(500.millis)
+  testWithTimeLimit("cats effect 2 comprehension 11", 900) {
+    val wait = IO.sleep(500.millis)
     ado {
       for {
         a <- wait.map(_ => 1)
@@ -138,10 +140,10 @@ class ZIO2Tests extends BaseZIO2Test {
         })
       } yield a + b
     }
-  }(Right(3))
+  }(3)
 
-  testWithTimeLimit("ZIO2 comprehension 12", 900) {
-    val wait = ZIO.sleep(500.millis)
+  testWithTimeLimit("cats effect 2 comprehension 12", 900) {
+    val wait = IO.sleep(500.millis)
     ado {
       for {
         a <- wait.map(_ => 1)
@@ -155,28 +157,29 @@ class ZIO2Tests extends BaseZIO2Test {
         }
       } yield a + b + c
     }
-  }(Right(6))
+  }(6)
 
-  testWithTimeLimit("ZIO2 comprehension 13", 900) {
-    val wait = ZIO.sleep(500.millis)
+  testWithTimeLimit("cats effect 2 comprehension 13", 900) {
+    val wait = IO.sleep(500.millis)
     ado {
       for {
         a <- wait.map(_ => 1)
-        b <- wait.map(_ => 2)
-        c <- ZIO.fail("Sadge")
-      } yield a + b
-    }
-  }(Left("Sadge"))
-
-  testWithTimeLimit("ZIO2 comprehension 14", 900) {
-    val wait = ZIO.sleep(500.millis)
-    ado {
-      for {
-        a <- wait.map(_ => 1)
-        b <- wait.map(_ => 2)
-        c <- if a + b < 5 then ZIO.fail("Sadge") else ZIO.succeed(3)
+        b = 2
+        c <- wait.map(_ => 3)
       } yield a + b + c
     }
-  }(Left("Sadge"))
+  }(6)
+
+  testWithTimeLimit("cats effect 2 comprehension 14", 900) {
+    val wait = IO.sleep(500.millis)
+    ado {
+      for {
+        a <- wait.map(_ => 1)
+        b = 2
+        c <- wait.map(_ => 3)
+        d = 4
+      } yield a + b + c + d
+    }
+  }(10)
 
 }

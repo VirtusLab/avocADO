@@ -8,7 +8,7 @@ import zio.duration.*
 
 class ZIO1Tests extends BaseZIO1Test {
 
-  testWithTimeLimit("ZIO comprehension 1", 900) {
+  testWithTimeLimit("ZIO1 comprehension 1", 900) {
     val wait = ZIO.sleep(500.millis)
     ado {
       for {
@@ -17,7 +17,7 @@ class ZIO1Tests extends BaseZIO1Test {
     }
   }(Right(1))
 
-  testWithTimeLimit("ZIO comprehension 2", 900) {
+  testWithTimeLimit("ZIO1 comprehension 2", 900) {
     val wait = ZIO.sleep(500.millis)
     ado {
       for {
@@ -27,7 +27,7 @@ class ZIO1Tests extends BaseZIO1Test {
     }
   }(Right(3))
 
-  testWithTimeLimit("ZIO comprehension 3", 1400) {
+  testWithTimeLimit("ZIO1 comprehension 3", 1400) {
     val wait = ZIO.sleep(500.millis)
     ado {
       for {
@@ -39,7 +39,7 @@ class ZIO1Tests extends BaseZIO1Test {
     }
   }(Right(7))
 
-  testWithTimeLimit("ZIO comprehension 4", 1400) {
+  testWithTimeLimit("ZIO1 comprehension 4", 1400) {
     val wait = ZIO.sleep(500.millis)
     ado {
       for {
@@ -52,7 +52,7 @@ class ZIO1Tests extends BaseZIO1Test {
     }
   }(Right(7))
 
-  testWithTimeLimit("ZIO comprehension 5", 1400) {
+  testWithTimeLimit("ZIO1 comprehension 5", 1400) {
     val wait = ZIO.sleep(500.millis)
     ado {
       for {
@@ -65,7 +65,7 @@ class ZIO1Tests extends BaseZIO1Test {
     }
   }(Right(7))
 
-  testWithTimeLimit("ZIO comprehension 6", 1400) {
+  testWithTimeLimit("ZIO1 comprehension 6", 1400) {
     val wait = ZIO.sleep(500.millis)
     ado {
       for {
@@ -80,7 +80,7 @@ class ZIO1Tests extends BaseZIO1Test {
     }
   }(Right(14))
 
-  testWithTimeLimit("ZIO comprehension 7", 900) {
+  testWithTimeLimit("ZIO1 comprehension 7", 900) {
     val wait = ZIO.sleep(500.millis)
     ado {
       for {
@@ -91,7 +91,7 @@ class ZIO1Tests extends BaseZIO1Test {
     }
   }(Right(3))
   
-  testWithTimeLimit("ZIO comprehension 8", 900) {
+  testWithTimeLimit("ZIO1 comprehension 8", 900) {
     val wait = ZIO.sleep(500.millis)
     ado {
       for {
@@ -103,7 +103,7 @@ class ZIO1Tests extends BaseZIO1Test {
     }
   }(Right(3))
 
-  testWithTimeLimit("ZIO comprehension 9", 900) {
+  testWithTimeLimit("ZIO1 comprehension 9", 900) {
     val wait = ZIO.sleep(500.millis)
     ado {
       for {
@@ -116,7 +116,7 @@ class ZIO1Tests extends BaseZIO1Test {
     }
   }(Right(3))
 
-  testWithTimeLimit("ZIO comprehension 10", 1400) {
+  testWithTimeLimit("ZIO1 comprehension 10", 1400) {
     val wait = ZIO.sleep(500.millis)
     ado {
       for {
@@ -128,7 +128,7 @@ class ZIO1Tests extends BaseZIO1Test {
     }
   }(Right(3))
 
-  testWithTimeLimit("ZIO comprehension 11", 900) {
+  testWithTimeLimit("ZIO1 comprehension 11", 900) {
     val wait = ZIO.sleep(500.millis)
     ado {
       for {
@@ -141,7 +141,7 @@ class ZIO1Tests extends BaseZIO1Test {
     }
   }(Right(3))
 
-  testWithTimeLimit("ZIO comprehension 12", 900) {
+  testWithTimeLimit("ZIO1 comprehension 12", 900) {
     val wait = ZIO.sleep(500.millis)
     ado {
       for {
@@ -158,7 +158,7 @@ class ZIO1Tests extends BaseZIO1Test {
     }
   }(Right(6))
 
-  testWithTimeLimit("ZIO comprehension 13", 900) {
+  testWithTimeLimit("ZIO1 comprehension 13", 900) {
     val wait = ZIO.sleep(500.millis)
     ado {
       for {
@@ -169,7 +169,7 @@ class ZIO1Tests extends BaseZIO1Test {
     }
   }(Left("Sadge"))
 
-  testWithTimeLimit("ZIO comprehension 14", 900) {
+  testWithTimeLimit("ZIO1 comprehension 14", 900) {
     val wait = ZIO.sleep(500.millis)
     ado {
       for {
