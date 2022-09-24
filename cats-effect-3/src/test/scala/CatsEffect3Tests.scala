@@ -7,9 +7,9 @@ import scala.concurrent.duration.*
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 
-class CatsEffectTests extends BaseCatsEffectTest {
+class CatsEffect3Tests extends BaseCatsEffect3Test {
 
-  testWithTimeLimit("cats effect comprehension 1", 900) {
+  testWithTimeLimit("cats effect 3 comprehension 1", 900) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -18,7 +18,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(1)
 
-  testWithTimeLimit("cats effect comprehension 2", 900) {
+  testWithTimeLimit("cats effect 3 comprehension 2", 900) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -28,7 +28,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(3)
 
-  testWithTimeLimit("cats effect comprehension 3", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 3", 1400) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -40,7 +40,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(7)
 
-  testWithTimeLimit("cats effect comprehension 4", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 4", 1400) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -53,7 +53,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(7)
 
-  testWithTimeLimit("cats effect comprehension 5", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 5", 1400) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -66,7 +66,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(7)
 
-  testWithTimeLimit("cats effect comprehension 6", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 6", 1400) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -81,7 +81,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(14)
 
-  testWithTimeLimit("cats effect comprehension 7", 900) {
+  testWithTimeLimit("cats effect 3 comprehension 7", 900) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -92,7 +92,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(3)
 
-  testWithTimeLimit("cats effect comprehension 8", 900) {
+  testWithTimeLimit("cats effect 3 comprehension 8", 900) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -104,7 +104,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(3)
 
-  testWithTimeLimit("cats effect comprehension 9", 900) {
+  testWithTimeLimit("cats effect 3 comprehension 9", 900) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -117,7 +117,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(3)
 
-  testWithTimeLimit("cats effect comprehension 10", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 10", 1400) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -129,7 +129,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(3)
 
-  testWithTimeLimit("cats effect comprehension 11", 900) {
+  testWithTimeLimit("cats effect 3 comprehension 11", 900) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -142,7 +142,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(3)
 
-  testWithTimeLimit("cats effect comprehension 12", 900) {
+  testWithTimeLimit("cats effect 3 comprehension 12", 900) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -159,7 +159,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(6)
 
-  testWithTimeLimit("cats effect comprehension 13", 900) {
+  testWithTimeLimit("cats effect 3 comprehension 13", 900) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -170,7 +170,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(6)
 
-  testWithTimeLimit("cats effect comprehension 14", 900) {
+  testWithTimeLimit("cats effect 3 comprehension 14", 900) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -182,7 +182,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(10)
 
-  testWithTimeLimit("cats effect comprehension 15", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 15", 1400) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -194,7 +194,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(10)
 
-  testWithTimeLimit("cats effect comprehension 16", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 16", 1400) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -206,7 +206,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(10)
 
-  testWithTimeLimit("cats effect comprehension 17", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 17", 1400) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -219,7 +219,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(7)
 
-  testWithTimeLimit("cats effect comprehension 18", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 18", 1400) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -232,7 +232,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(7)
 
-  testWithTimeLimit("cats effect comprehension 19", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 19", 1400) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -247,7 +247,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(14)
 
-  testWithTimeLimit("cats effect comprehension 20", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 20", 1400) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -259,7 +259,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(10)
 
-  testWithTimeLimit("cats effect comprehension 21", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 21", 1400) {
     val wait = IO.sleep(500.millis)
     def getImplicit(using i: Int): IO[Int] = wait.map(_ => i)
     ado {
@@ -271,7 +271,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(2)
 
-  testWithTimeLimit("cats effect comprehension 22", 1900) {
+  testWithTimeLimit("cats effect 3 comprehension 22", 1900) {
     val wait = IO.sleep(500.millis)
     def getImplicit(using i: Int): IO[Int] = wait.map(_ => i)
     ado {
@@ -286,7 +286,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }((3, 5))
 
-  testWithTimeLimit("cats effect comprehension 23", 900) {
+  testWithTimeLimit("cats effect 3 comprehension 23", 900) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -296,7 +296,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(1)
 
-  testWithTimeLimit("cats effect comprehension 24", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 24", 1400) {
     val wait = IO.sleep(500.millis)
     def getImplicit(using i: Int): IO[Int] = wait.map(_ => i)
     ado {
@@ -308,7 +308,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(1)
 
-  testWithTimeLimit("cats effect comprehension 25", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 25", 1400) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -319,7 +319,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(3)
 
-  testWithTimeLimit("cats effect comprehension 26", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 26", 1400) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -330,7 +330,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(2)
 
-  testWithTimeLimit("cats effect comprehension 27", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 27", 1400) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -343,7 +343,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(5)
 
-  testWithTimeLimit("cats effect comprehension 28", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 28", 1400) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -356,7 +356,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(5)
 
-  testWithTimeLimit("cats effect comprehension 29", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 29", 1400) {
     val wait = IO.sleep(500.millis)
     ado {
       for {
@@ -369,7 +369,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(5)
 
-  testWithTimeLimit("cats effect comprehension 30", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 30", 1400) {
     val wait = IO.sleep(500.millis)
     case class C(i: Int)
     ado {
@@ -383,7 +383,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(5)
 
-  testWithTimeLimit("cats effect comprehension 31", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 31", 1400) {
     val wait = IO.sleep(500.millis)
     case class C(i: Int)
     ado {
@@ -397,7 +397,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(5)
 
-  testWithTimeLimit("cats effect comprehension 32", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 32", 1400) {
     val wait = IO.sleep(500.millis)
     object obj {
       case class AClass[T](t: T)
@@ -413,7 +413,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(5)
 
-  testWithTimeLimit("cats effect comprehension 33", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 33", 1400) {
     val wait = IO.sleep(500.millis)
     object obj {
       case class AClass[T](t: T)
@@ -429,7 +429,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(5)
 
-  testWithTimeLimit("cats effect comprehension 34", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 34", 1400) {
     val wait = IO.sleep(500.millis)
     object obj {
       case class AClass[T](t: T)
@@ -445,7 +445,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(5)
 
-  testWithTimeLimit("cats effect comprehension 35", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 35", 1400) {
     val wait = IO.sleep(500.millis)
     case class C(i: Int)
     ado {
@@ -459,7 +459,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(5)
 
-  testWithTimeLimit("cats effect comprehension 36", 1400) {
+  testWithTimeLimit("cats effect 3 comprehension 36", 1400) {
     val wait = IO.sleep(500.millis)
     case class C(i: Int)
     ado {
@@ -473,7 +473,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(5)
 
-  testWithTimeLimit("cats effect comprehension 37", 1900) {
+  testWithTimeLimit("cats effect 3 comprehension 37", 1900) {
     val wait = IO.sleep(500.millis)
     case class C(i: Int)
     ado {
@@ -488,7 +488,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }(5)
 
-  testWithTimeLimit("cats effect comprehension 38", 1900) {
+  testWithTimeLimit("cats effect 3 comprehension 38", 1900) {
     val wait = IO.sleep(500.millis)
     case class C(i: Int*)
     ado {
@@ -503,7 +503,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }((5, 1, 2, 3))
 
-  testWithTimeLimit("cats effect comprehension 39", 1900) {
+  testWithTimeLimit("cats effect 3 comprehension 39", 1900) {
     val wait = IO.sleep(500.millis)
     case class C(i: Int)
     ado {
@@ -518,7 +518,7 @@ class CatsEffectTests extends BaseCatsEffectTest {
     }
   }((3, 1))
 
-  testWithTimeLimit("cats effect comprehension 40", 1900) {
+  testWithTimeLimit("cats effect 3 comprehension 40", 1900) {
     val wait = IO.sleep(500.millis)
     case class C(i: Int*)
     ado {
