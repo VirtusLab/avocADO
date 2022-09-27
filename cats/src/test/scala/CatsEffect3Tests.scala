@@ -1,7 +1,7 @@
 package avocado.tests
 
 import avocado.*
-import avocado.instances.catseffect3.given
+import avocado.instances.cats.given
 
 import scala.concurrent.duration.*
 import cats.effect.IO

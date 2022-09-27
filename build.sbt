@@ -35,10 +35,9 @@ lazy val root = project
   )
   .aggregate((
     avocado.projectRefs
-      ++ catsEffect3.projectRefs
+      ++ cats.projectRefs
       ++ zio2.projectRefs
       ++ zio1.projectRefs
-      ++ catsEffect2.projectRefs
   )*)
 
 lazy val avocado = projectMatrix
@@ -49,25 +48,14 @@ lazy val avocado = projectMatrix
   )
   .jvmPlatform(scalaVersions = List(scala3))
 
-lazy val catsEffect3 = projectMatrix
-  .in(file("cats-effect-3"))
+lazy val cats = projectMatrix
+  .in(file("cats"))
   .settings(commonSettings)
   .settings(
-    name := "avocADO-cats-effect-3",
+    name := "avocADO-cats",
     libraryDependencies ++= Seq(
-      "org.typelevel" %%% "cats-effect" % "3.3.14"
-    )
-  )
-  .dependsOn(avocado)
-  .jvmPlatform(scalaVersions = List(scala3))
-
-lazy val catsEffect2 = projectMatrix
-  .in(file("cats-effect-2"))
-  .settings(commonSettings)
-  .settings(
-    name := "avocADO-cats-effect-2",
-    libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-effect" % "2.5.5"
+      "org.typelevel" %% "cats-core" % "2.8.0",
+      "org.typelevel" %%% "cats-effect" % "3.3.14" % Test
     )
   )
   .dependsOn(avocado)
