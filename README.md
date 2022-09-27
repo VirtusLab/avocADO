@@ -1,4 +1,4 @@
-[![avocado Scala version support](https://index.scala-lang.org/virtuslab/avocado/avocado/latest.svg)](https://index.scala-lang.org/virtuslab/avocado/avocado)
+[![avocado Scala version support](https://index.scala-lang.org/virtuslab/avocado/avocado/latest-by-scala-version.svg?platform=jvm)](https://index.scala-lang.org/virtuslab/avocado/avocado)
 
 # avocADO - Safe compile-time parallelization of `for` comprehensions
 
@@ -8,7 +8,7 @@
 import cats.effect.IO
 
 import avocado.*
-import avocado.instances.catseffect3.given
+import avocado.instances.cats.given
 
 val run: IO[Int] =
   ado {
@@ -42,8 +42,9 @@ The name `avocADO` is a pun on the most important function exposed by the librar
 ```scala
 libraryDependencies ++= Seq(
   "org.virtuslab" %% "avocado" % "version from the badge",
-  "org.virtuslab" %% "avocado-cats-effect-3" % "version from the badge", // for Cats Effect 3.x
+  "org.virtuslab" %% "avocado-cats" % "version from the badge", // for Cats
   "org.virtuslab" %% "avocado-zio-2" % "version from the badge", // for ZIO 2.x
+  "org.virtuslab" %% "avocado-zio-1" % "version from the badge", // for ZIO 1.x
 )
 ```
 
@@ -51,8 +52,9 @@ libraryDependencies ++= Seq(
 
 ```scala
 //> using lib "org.virtuslab::avocado:version from the badge"
-//> using lib "org.virtuslab::avocado-cats-effect-3:version from the badge" // for Cats Effect 3.x
+//> using lib "org.virtuslab::avocado-cats:version from the badge" // for Cats
 //> using lib "org.virtuslab::avocado-zio-2:version from the badge" // for ZIO 2.x
+//> using lib "org.virtuslab::avocado-zio-1:version from the badge" // for ZIO 1.x
 ```
 
 ## Usage (in code)
@@ -61,8 +63,9 @@ All you need to do in order to use `avocADO` is to import the `ado` function and
 ```scala
 import avocado.* // This line exposes the `ado` function - entrypoint of the library
 // You should choose one of the following imports depending on your effect system of choice
-import avocado.instances.catseffect3.given
+import avocado.instances.cats.given
 import avocado.instances.zio2.given
+import avocado.instances.zio1.given
 ```
 
 And that's it! All that's left is to wrap the `for`-comprehensions that you want to parallelize with a call to `ado` an watch your program run in parallel! Like so:
