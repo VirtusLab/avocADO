@@ -1,4 +1,4 @@
-name: CI
+name: AvocADO
 
 on:
   push:
@@ -11,7 +11,7 @@ env:
   branch-name: ${GITHUB_REF#refs/heads/}
 
 jobs:
-  buildSbt:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
