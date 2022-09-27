@@ -7,11 +7,11 @@ import zio.*
 
 class ZIO2Tests extends BaseZIO2Test {
 
-  testWithTimeLimit("ZIO2 comprehension 1", 900) {
-    val wait = ZIO.sleep(500.millis)
+  testWithTimeLimit("ZIO2 comprehension 1", 4000) {
+    val wait = ZIO.sleep(1000.millis)
     ado {
       for {
-        a <- ZIO.succeed(1)
+        a <- wait.map(_ => 1)
       } yield a
     }
   }(Right(1))
