@@ -1,5 +1,7 @@
 val scala3 = "3.2.0"
 
+Global / concurrentRestrictions += Tags.limit(Tags.All, 1)
+
 val commonSettings = Seq(
   organization := "org.virtuslab",
   description := "Safe compile-time parallelization of for-comprehensions for Scala 3",
@@ -22,7 +24,7 @@ val commonSettings = Seq(
     "-feature"
   ),
   libraryDependencies ++= Seq(
-    "org.scalameta" %%% "munit" % "0.7.29" % Test
+    "org.scalameta" %%% "munit" % "1.0.0-M6" % Test
   )
 )
 
@@ -47,6 +49,8 @@ lazy val avocado = projectMatrix
     name := "avocADO"
   )
   .jvmPlatform(scalaVersions = List(scala3))
+  .jsPlatform(scalaVersions = Seq(scala3))
+  .nativePlatform(scalaVersions = Seq(scala3))
 
 lazy val cats = projectMatrix
   .in(file("cats"))
@@ -54,12 +58,14 @@ lazy val cats = projectMatrix
   .settings(
     name := "avocADO-cats",
     libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-core" % "2.8.0",
+      "org.typelevel" %%% "cats-core" % "2.8.0",
       "org.typelevel" %%% "cats-effect" % "3.3.14" % Test
     )
   )
   .dependsOn(avocado)
   .jvmPlatform(scalaVersions = List(scala3))
+  .jsPlatform(scalaVersions = Seq(scala3))
+  .nativePlatform(scalaVersions = Seq(scala3))
 
 lazy val zio2 = projectMatrix
   .in(file("zio-2"))
@@ -67,11 +73,14 @@ lazy val zio2 = projectMatrix
   .settings(
     name := "avocADO-zio-2",
     libraryDependencies ++= Seq(
-      "dev.zio" %%% "zio" % "2.0.0"
+      "dev.zio" %%% "zio" % "2.0.2"
     )
   )
   .dependsOn(avocado)
   .jvmPlatform(scalaVersions = List(scala3))
+  .jsPlatform(scalaVersions = Seq(scala3))
+  .nativePlatform(scalaVersions = Seq(scala3))
+
 
 lazy val zio1 = projectMatrix
   .in(file("zio-1"))
@@ -79,8 +88,10 @@ lazy val zio1 = projectMatrix
   .settings(
     name := "avocADO-zio-1",
     libraryDependencies ++= Seq(
-      "dev.zio" %% "zio" % "1.0.17"
+      "dev.zio" %%% "zio" % "1.0.17"
     )
   )
   .dependsOn(avocado)
   .jvmPlatform(scalaVersions = List(scala3))
+  .jsPlatform(scalaVersions = Seq(scala3))
+  .nativePlatform(scalaVersions = Seq(scala3))

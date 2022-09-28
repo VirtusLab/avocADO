@@ -7,7 +7,7 @@ import scala.quoted.*
 private[avocado] object macros {
 
   def adoImpl[F[_]: Type, A: Type](compExpr: Expr[F[A]], instanceExpr: Expr[AvocADO[F]])(using Quotes): Expr[F[A]] =
-    ADOImpl(using quotes).adoImpl(compExpr, instanceExpr)
+    new ADOImpl(using quotes).adoImpl(compExpr, instanceExpr)
 
   class ADOImpl(using Quotes) {
     import quotes.reflect.*
