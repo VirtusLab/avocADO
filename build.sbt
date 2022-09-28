@@ -64,6 +64,8 @@ lazy val cats = projectMatrix
   )
   .dependsOn(avocado)
   .jvmPlatform(scalaVersions = List(scala3))
+  .jsPlatform(scalaVersions = Seq(scala3))
+  .nativePlatform(scalaVersions = Seq(scala3))
 
 lazy val zio2 = projectMatrix
   .in(file("zio-2"))
@@ -71,11 +73,14 @@ lazy val zio2 = projectMatrix
   .settings(
     name := "avocADO-zio-2",
     libraryDependencies ++= Seq(
-      "dev.zio" %%% "zio" % "2.0.0"
+      "dev.zio" %%% "zio" % "2.0.2"
     )
   )
   .dependsOn(avocado)
   .jvmPlatform(scalaVersions = List(scala3))
+  .jsPlatform(scalaVersions = Seq(scala3))
+  .nativePlatform(scalaVersions = Seq(scala3))
+
 
 lazy val zio1 = projectMatrix
   .in(file("zio-1"))
@@ -88,3 +93,5 @@ lazy val zio1 = projectMatrix
   )
   .dependsOn(avocado)
   .jvmPlatform(scalaVersions = List(scala3))
+  .jsPlatform(scalaVersions = Seq(scala3))
+  .nativePlatform(scalaVersions = Seq(scala3))
