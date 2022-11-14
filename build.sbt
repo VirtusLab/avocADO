@@ -1,4 +1,4 @@
-val scala3 = "3.2.0"
+val scala3 = "3.2.1"
 
 Global / concurrentRestrictions += Tags.limit(Tags.All, 1)
 
@@ -15,6 +15,7 @@ val commonSettings = Seq(
       url("https://twitter.com/KacperKorban")
     )
   ),
+  scalaVersion := scala3,
   scalacOptions ++= Seq(
     "-Xcheck-macros",
     "-Ycheck:inlining",
@@ -46,7 +47,10 @@ lazy val avocado = projectMatrix
   .in(file("avocADO"))
   .settings(commonSettings)
   .settings(
-    name := "avocADO"
+    name := "avocADO",
+    Compile / doc / scalacOptions ++= Seq(
+      "-siteroot", "docs"
+    )
   )
   .jvmPlatform(scalaVersions = List(scala3))
   .jsPlatform(scalaVersions = Seq(scala3))
