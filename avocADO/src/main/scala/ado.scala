@@ -26,7 +26,7 @@ import macros.*
   *
   * The transformed code will use the provided implicit [[avocado.AvocADO]]
   * instance for method calls such as `map`, `flatMap` and `zip`. Potential for
-  * paralellizm is introduced in places where `zip` calls are used. So in order
+  * parallelism is introduced in places where `zip` calls are used. So in order
   * to utilize this method in a sensible way, [[avocado.AvocADO.zip]] should
   * initialize parallel calls. Though this method should also be safe for
   * sequential operations.
