@@ -63,7 +63,7 @@ lazy val cats = projectMatrix
     name := "avocADO-cats",
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "cats-core" % "2.8.0",
-      "org.typelevel" %%% "cats-effect" % "3.3.14" % Test
+      "org.typelevel" %%% "cats-effect" % "3.4.2" % Test
     )
   )
   .dependsOn(avocado)
