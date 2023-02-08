@@ -92,7 +92,7 @@ lazy val zio1 = projectMatrix
   .settings(
     name := "avocADO-zio-1",
     libraryDependencies ++= Seq(
-      "dev.zio" %%% "zio" % "1.0.17"
+      "dev.zio" %%% "zio" % "1.0.18"
     )
   )
   .dependsOn(avocado)
