@@ -25,7 +25,7 @@ val commonSettings = Seq(
     "-feature"
   ),
   libraryDependencies ++= Seq(
-    "org.scalameta" %%% "munit" % "1.0.0-M6" % Test
+    "org.scalameta" %%% "munit" % "1.0.0-M11" % Test
   )
 )
 
