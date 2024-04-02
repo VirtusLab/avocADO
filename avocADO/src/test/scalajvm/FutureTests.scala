@@ -21,7 +21,7 @@ class FutureTests extends munit.FunSuite {
 
   testWithTimeLimit("Future comprehension 1", 900) {
     def wait = Future(Thread.sleep(500))
-    ado {
+    parallelize {
       for {
         a <- Future(1)
       } yield a
@@ -30,7 +30,7 @@ class FutureTests extends munit.FunSuite {
 
   testWithTimeLimit("Future comprehension 2", 900) {
     def wait = Future(Thread.sleep(500))
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -40,7 +40,7 @@ class FutureTests extends munit.FunSuite {
 
   testWithTimeLimit("Future comprehension 3", 1400) {
     def wait = Future(Thread.sleep(500))
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)

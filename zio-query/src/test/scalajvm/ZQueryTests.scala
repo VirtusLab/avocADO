@@ -10,7 +10,7 @@ class ZQueryTests extends BaseZQueryTest {
 
   testWithTimeLimit("ZQuery comprehension 1", 4000) {
     val wait = ZQuery.fromZIO(ZIO.sleep(1000.millis))
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
       } yield a
@@ -19,7 +19,7 @@ class ZQueryTests extends BaseZQueryTest {
 
   testWithTimeLimit("ZQuery comprehension 2", 900) {
     val wait = ZQuery.fromZIO(ZIO.sleep(500.millis))
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -29,7 +29,7 @@ class ZQueryTests extends BaseZQueryTest {
 
   testWithTimeLimit("ZQuery comprehension 3", 1400) {
     val wait = ZQuery.fromZIO(ZIO.sleep(500.millis))
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -41,7 +41,7 @@ class ZQueryTests extends BaseZQueryTest {
 
   testWithTimeLimit("ZQuery comprehension 4", 1400) {
     val wait = ZQuery.fromZIO(ZIO.sleep(500.millis))
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -54,7 +54,7 @@ class ZQueryTests extends BaseZQueryTest {
 
   testWithTimeLimit("ZQuery comprehension 5", 1400) {
     val wait = ZQuery.fromZIO(ZIO.sleep(500.millis))
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)

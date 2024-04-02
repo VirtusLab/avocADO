@@ -10,7 +10,7 @@ class ZIO1Tests extends BaseZIO1Test {
 
   testWithTimeLimit("ZIO1 comprehension 1", 4000) {
     val wait = ZIO.sleep(1000.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
       } yield a
@@ -19,7 +19,7 @@ class ZIO1Tests extends BaseZIO1Test {
 
   testWithTimeLimit("ZIO1 comprehension 2", 900) {
     val wait = ZIO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -29,7 +29,7 @@ class ZIO1Tests extends BaseZIO1Test {
 
   testWithTimeLimit("ZIO1 comprehension 3", 1400) {
     val wait = ZIO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -41,7 +41,7 @@ class ZIO1Tests extends BaseZIO1Test {
 
   testWithTimeLimit("ZIO1 comprehension 4", 1400) {
     val wait = ZIO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -54,7 +54,7 @@ class ZIO1Tests extends BaseZIO1Test {
 
   testWithTimeLimit("ZIO1 comprehension 5", 1400) {
     val wait = ZIO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -67,7 +67,7 @@ class ZIO1Tests extends BaseZIO1Test {
 
   testWithTimeLimit("ZIO1 comprehension 6", 1400) {
     val wait = ZIO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -82,7 +82,7 @@ class ZIO1Tests extends BaseZIO1Test {
 
   testWithTimeLimit("ZIO1 comprehension 7", 900) {
     val wait = ZIO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -93,7 +93,7 @@ class ZIO1Tests extends BaseZIO1Test {
   
   testWithTimeLimit("ZIO1 comprehension 8", 900) {
     val wait = ZIO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -105,7 +105,7 @@ class ZIO1Tests extends BaseZIO1Test {
 
   testWithTimeLimit("ZIO1 comprehension 9", 900) {
     val wait = ZIO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         _ <- wait
         a <- wait.map(_ => 1)
@@ -118,7 +118,7 @@ class ZIO1Tests extends BaseZIO1Test {
 
   testWithTimeLimit("ZIO1 comprehension 10", 1400) {
     val wait = ZIO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         _ <- wait.map(_ => a)
@@ -130,7 +130,7 @@ class ZIO1Tests extends BaseZIO1Test {
 
   testWithTimeLimit("ZIO1 comprehension 11", 900) {
     val wait = ZIO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => {
@@ -143,7 +143,7 @@ class ZIO1Tests extends BaseZIO1Test {
 
   testWithTimeLimit("ZIO1 comprehension 12", 900) {
     val wait = ZIO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => {
@@ -160,7 +160,7 @@ class ZIO1Tests extends BaseZIO1Test {
 
   testWithTimeLimit("ZIO1 comprehension 13", 900) {
     val wait = ZIO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -171,7 +171,7 @@ class ZIO1Tests extends BaseZIO1Test {
 
   testWithTimeLimit("ZIO1 comprehension 14", 900) {
     val wait = ZIO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)

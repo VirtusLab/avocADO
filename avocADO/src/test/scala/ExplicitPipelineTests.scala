@@ -12,7 +12,7 @@ class ExplicitPipelineTests extends munit.FunSuite {
   }
 
   test("handwritten pipeline 1") {
-    val res = ado {
+    val res = parallelize {
       Some(1).flatMap { a =>
         Some(2).map { b =>
           a + b
@@ -23,7 +23,7 @@ class ExplicitPipelineTests extends munit.FunSuite {
   }
 
   test("handwritten pipeline 2") {
-    val res = ado {
+    val res = parallelize {
       Some(1).flatMap { a =>
         Some(2).flatMap { b =>
           Some(a + b)

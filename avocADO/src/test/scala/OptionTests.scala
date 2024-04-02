@@ -12,7 +12,7 @@ class OptionTests extends munit.FunSuite {
   }
 
   test("option comprehension 1") {
-    val res = ado {
+    val res = parallelize {
       for {
         a <- Some(1)
         b <- Some(2)
@@ -22,7 +22,7 @@ class OptionTests extends munit.FunSuite {
   }
 
   test("option comprehension 2") {
-    val res = ado {
+    val res = parallelize {
       for {
         a <- Some(1)
         b <- Some(2)
@@ -33,7 +33,7 @@ class OptionTests extends munit.FunSuite {
   }
 
   test("option comprehension 3") {
-    val res = ado {
+    val res = parallelize {
       for {
         a <- Some(1)
         b <- Some(2)
@@ -44,7 +44,7 @@ class OptionTests extends munit.FunSuite {
   }
 
   test("option comprehension 4") {
-    val res = ado {
+    val res = parallelize {
       for {
         a <- Some(1)
         b <- Some(2)
@@ -56,7 +56,7 @@ class OptionTests extends munit.FunSuite {
   }
 
   test("option comprehension 5") {
-    val res = ado {
+    val res = parallelize {
       for {
         a <- Some(1)
         b <- Some(2)
@@ -69,7 +69,7 @@ class OptionTests extends munit.FunSuite {
   }
 
   test("option comprehension 6") {
-    val res = ado {
+    val res = parallelize {
       for {
         a <- Some(1)
         b <- Some(2)
@@ -81,7 +81,7 @@ class OptionTests extends munit.FunSuite {
   }
 
   test("option comprehension 7") {
-    val res = ado {
+    val res = parallelize {
       for {
         a <- Some(1)
         aa <- None
@@ -93,7 +93,7 @@ class OptionTests extends munit.FunSuite {
   }
 
   test("option comprehension 8") {
-    val res = ado {
+    val res = parallelize {
       for {
         a <- Some(1)
       } yield a
@@ -102,7 +102,7 @@ class OptionTests extends munit.FunSuite {
   }
 
   test("option comprehension 9") {
-    val res = ado {
+    val res = parallelize {
       for {
         a <- Some(1)
         a <- Some(a)
@@ -113,7 +113,7 @@ class OptionTests extends munit.FunSuite {
   }
 
   test("option comprehension 10") {
-    val res = ado {
+    val res = parallelize {
       for {
         a <- Some(1)
         b <- Some(a + 2)
@@ -124,7 +124,7 @@ class OptionTests extends munit.FunSuite {
   }
 
   test("option comprehension 11") {
-    val res = ado {
+    val res = parallelize {
       for {
         a <- Some(1)
         b <- Some(a + 2)
@@ -135,7 +135,7 @@ class OptionTests extends munit.FunSuite {
   }
 
   test("option comprehension 12") {
-    val res = ado {
+    val res = parallelize {
       for {
         _ <- Option(null)
         xd <- Option {
@@ -147,7 +147,7 @@ class OptionTests extends munit.FunSuite {
   }
 
   test("option comprehension 13") {
-    val res = ado {
+    val res = parallelize {
       for {
         a <- Some(1)
         a <- Some(2)
@@ -158,7 +158,7 @@ class OptionTests extends munit.FunSuite {
 
   test("option comprehension 14") {
     def getImplicit(using i: Int): Option[Int] = Some(i)
-    val res = ado {
+    val res = parallelize {
       for {
         given Int <- Some(2)
         b <- getImplicit
@@ -169,7 +169,7 @@ class OptionTests extends munit.FunSuite {
 
   test("option comprehension 15") {
     def getImplicit(using i: Int): Option[Int] = Some(i)
-    val res = ado {
+    val res = parallelize {
       for {
         a <- Some(2)
         given Int = 1
@@ -180,7 +180,7 @@ class OptionTests extends munit.FunSuite {
   }
 
   test("option comprehension 16") {
-    val res = ado {
+    val res = parallelize {
       for {
         _ <- Some(2)
         b = 1
@@ -191,7 +191,7 @@ class OptionTests extends munit.FunSuite {
 
   test("option comprehension 17") {
     def getImplicit(using i: Int): Option[Int] = Some(i)
-    val res = ado {
+    val res = parallelize {
       for {
         _ <- Some(2)
         given Int = 1
@@ -203,7 +203,7 @@ class OptionTests extends munit.FunSuite {
 
 
   test("option comprehension 18") {
-    val res = ado {
+    val res = parallelize {
       for {
         a <- Some(1)
         (b: Int) = 2
@@ -214,7 +214,7 @@ class OptionTests extends munit.FunSuite {
   }
 
   test("option comprehension 19") {
-    val res = ado {
+    val res = parallelize {
       for {
         a <- Some(1)
         _ <- Some(2)
@@ -225,7 +225,7 @@ class OptionTests extends munit.FunSuite {
   }
 
   test("option comprehension 20") {
-    val res = ado {
+    val res = parallelize {
       for {
         a <- Some(1)
         _ <- Some(2)
@@ -237,7 +237,7 @@ class OptionTests extends munit.FunSuite {
 
   test("option comprehension 21") {
     case class C(i: Int, j: Int)
-    val res = ado {
+    val res = parallelize {
       for {
         a <- Some(1)
         _ <- Some(2)
@@ -249,7 +249,7 @@ class OptionTests extends munit.FunSuite {
 
   test("option comprehension 22") {
     case class C(i: Int*)
-    val res = ado {
+    val res = parallelize {
       for {
         a <- Some(1)
         _ <- Some(2)

@@ -238,7 +238,7 @@ private[avocado] object macros {
     }
 
     def throwGenericError(): Nothing =
-      report.errorAndAbort("Oopsie, wrong argument passed to ado!")
+      report.errorAndAbort("Oopsie, wrong argument passed to parallelize!")
 
     private def supportedRewriteMethod(name: String): Boolean =
       List("flatMap", "map").contains(name)
