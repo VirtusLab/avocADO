@@ -1,4 +1,4 @@
-val scala3 = "3.3.1"
+val scala3 = "3.3.3"
 
 Global / concurrentRestrictions += Tags.limit(Tags.All, 1)
 
@@ -25,7 +25,7 @@ val commonSettings = Seq(
     "-feature"
   ),
   libraryDependencies ++= Seq(
-    "org.scalameta" %%% "munit" % "1.0.0-M6" % Test
+    "org.scalameta" %%% "munit" % "1.0.0-M11" % Test
   )
 )
 
@@ -63,8 +63,8 @@ lazy val cats = projectMatrix
   .settings(
     name := "avocADO-cats",
     libraryDependencies ++= Seq(
-      "org.typelevel" %%% "cats-core" % "2.9.0",
-      "org.typelevel" %%% "cats-effect" % "3.4.8" % Test
+      "org.typelevel" %%% "cats-core" % "2.10.0",
+      "org.typelevel" %%% "cats-effect" % "3.5.4" % Test
     )
   )
   .dependsOn(avocado)
@@ -78,7 +78,7 @@ lazy val zio2 = projectMatrix
   .settings(
     name := "avocADO-zio-2",
     libraryDependencies ++= Seq(
-      "dev.zio" %%% "zio" % "2.0.2"
+      "dev.zio" %%% "zio" % "2.0.21"
     ),
     scalacOptions := scalacOptions.value.filterNot(_ == "-Xcheck-macros")
   )
@@ -93,7 +93,7 @@ lazy val zio1 = projectMatrix
   .settings(
     name := "avocADO-zio-1",
     libraryDependencies ++= Seq(
-      "dev.zio" %%% "zio" % "1.0.17"
+      "dev.zio" %%% "zio" % "1.0.18"
     )
   )
   .dependsOn(avocado)
