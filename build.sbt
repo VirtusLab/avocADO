@@ -1,4 +1,4 @@
-val scala3 = "3.2.2"
+val scala3 = "3.3.1"
 
 Global / concurrentRestrictions += Tags.limit(Tags.All, 1)
 
@@ -41,6 +41,7 @@ lazy val root = project
       ++ cats.projectRefs
       ++ zio2.projectRefs
       ++ zio1.projectRefs
+      ++ zioquery.projectRefs
   )*)
 
 lazy val avocado = projectMatrix
@@ -78,13 +79,13 @@ lazy val zio2 = projectMatrix
     name := "avocADO-zio-2",
     libraryDependencies ++= Seq(
       "dev.zio" %%% "zio" % "2.0.2"
-    )
+    ),
+    scalacOptions := scalacOptions.value.filterNot(_ == "-Xcheck-macros")
   )
   .dependsOn(avocado)
   .jvmPlatform(scalaVersions = List(scala3))
   .jsPlatform(scalaVersions = Seq(scala3))
   .nativePlatform(scalaVersions = Seq(scala3))
-
 
 lazy val zio1 = projectMatrix
   .in(file("zio-1"))
@@ -94,6 +95,21 @@ lazy val zio1 = projectMatrix
     libraryDependencies ++= Seq(
       "dev.zio" %%% "zio" % "1.0.17"
     )
+  )
+  .dependsOn(avocado)
+  .jvmPlatform(scalaVersions = List(scala3))
+  .jsPlatform(scalaVersions = Seq(scala3))
+  .nativePlatform(scalaVersions = Seq(scala3))
+
+lazy val zioquery = projectMatrix
+  .in(file("zio-query"))
+  .settings(commonSettings)
+  .settings(
+    name := "avocADO-zio-query",
+    libraryDependencies ++= Seq(
+      "dev.zio" %% "zio-query" % "0.6.1"
+    ),
+    scalacOptions := scalacOptions.value.filterNot(_ == "-Xcheck-macros")
   )
   .dependsOn(avocado)
   .jvmPlatform(scalaVersions = List(scala3))

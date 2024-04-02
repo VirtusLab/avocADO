@@ -43,6 +43,7 @@ libraryDependencies ++= Seq(
   "org.virtuslab" %% "avocado-cats" % "version from the badge", // for Cats
   "org.virtuslab" %% "avocado-zio-2" % "version from the badge", // for ZIO 2.x
   "org.virtuslab" %% "avocado-zio-1" % "version from the badge", // for ZIO 1.x
+  "org.virtuslab" %% "avocado-zio-query" % "version from the badge", // for ZIO Query
 )
 ```
 
@@ -53,6 +54,7 @@ libraryDependencies ++= Seq(
 //> using lib "org.virtuslab::avocado-cats:version from the badge" // for Cats
 //> using lib "org.virtuslab::avocado-zio-2:version from the badge" // for ZIO 2.x
 //> using lib "org.virtuslab::avocado-zio-1:version from the badge" // for ZIO 1.x
+//> using lib "org.virtuslab::avocado-zio-query:version from the badge" // for ZIO Query
 ```
 
 ## Usage (in code)
@@ -64,6 +66,7 @@ import avocado.* // This line exposes the `ado` function - entrypoint of the lib
 import avocado.instances.cats.given
 import avocado.instances.zio2.given
 import avocado.instances.zio1.given
+import avocado.instances.zioquery.given
 ```
 
 And that's it! All that's left is to wrap the `for`-comprehensions that you want to parallelize with a call to `ado` an watch your program run in parallel! Like so:
