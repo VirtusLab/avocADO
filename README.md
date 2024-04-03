@@ -11,7 +11,7 @@ import avocado.*
 import avocado.instances.cats.given
 
 val run: IO[Int] =
-  ado {
+  parallelize {
     for {
       a <- doStuff1
       b <- doStuff2(a)
@@ -33,7 +33,7 @@ for {
 
 `avocADO` is a small library that allows for automatic rewriting of `for` comprehensions to their parallel versions.
 
-The name `avocADO` is a pun on the most important function exposed by the library - `ado` (name taken from Haskell's language extension `ApplicativeDo`).
+The name `avocADO` is a pun on the function that is the inspiration for this library - `ado` from Haskell's language extension `ApplicativeDo`.
 
 ## Usage (with build tools)
 
@@ -61,9 +61,9 @@ libraryDependencies ++= Seq(
 
 ## Usage (in code)
 
-All you need to do in order to use `avocADO` is to import the `ado` function and an `AvocADO` instance for your effect system. i.e.
+All you need to do in order to use `avocADO` is to import the `parallelize` function and an `AvocADO` instance for your effect system. i.e.
 ```scala
-import avocado.* // This line exposes the `ado` function - entrypoint of the library
+import avocado.* // This line exposes the `parallelize` function - entrypoint of the library
 // You should choose one of the following imports depending on your effect system of choice
 import avocado.instances.cats.given
 import avocado.instances.zio2.given
@@ -71,9 +71,9 @@ import avocado.instances.zio1.given
 import avocado.instances.zioquery.given
 ```
 
-And that's it! All that's left is to wrap the `for`-comprehensions that you want to parallelize with a call to `ado` an watch your program run in parallel! Like so:
+And that's it! All that's left is to wrap the `for`-comprehensions that you want to parallelize with a call to `parallelize` an watch your program run in parallel! Like so:
 ```scala
-ado {
+parallelize {
   for {
     ...
   } yield ...

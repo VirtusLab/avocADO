@@ -11,7 +11,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 1", 900) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- IO(1)
       } yield a
@@ -20,7 +20,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 2", 900) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -30,7 +30,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 3", 1400) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -42,7 +42,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 4", 1400) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -55,7 +55,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 5", 1400) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -68,7 +68,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 6", 1400) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -83,7 +83,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 7", 900) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -94,7 +94,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 8", 900) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -106,7 +106,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 9", 900) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         _ <- wait
         a <- wait.map(_ => 1)
@@ -119,7 +119,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 10", 1400) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         _ <- wait.map(_ => a)
@@ -131,7 +131,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 11", 900) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => {
@@ -144,7 +144,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 12", 900) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => {
@@ -161,7 +161,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 13", 900) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b = 2
@@ -172,7 +172,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 14", 900) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b = 2
@@ -184,7 +184,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 15", 1400) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b = 2
@@ -196,7 +196,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 16", 1400) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b = 2
@@ -208,7 +208,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 17", 1400) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -221,7 +221,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 18", 1400) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -234,7 +234,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 19", 1400) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b = 2
@@ -249,7 +249,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 20", 1400) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => a + 1)
@@ -262,7 +262,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
   testWithTimeLimit("cats effect 3 comprehension 21", 1400) {
     val wait = IO.sleep(500.millis)
     def getImplicit(using i: Int): IO[Int] = wait.map(_ => i)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         given Int <- wait.map(_ => 2)
@@ -274,7 +274,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
   testWithTimeLimit("cats effect 3 comprehension 22", 1900) {
     val wait = IO.sleep(500.millis)
     def getImplicit(using i: Int): IO[Int] = wait.map(_ => i)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -288,7 +288,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 23", 900) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         _ <- wait.map(_ => 2)
         b = 1
@@ -299,7 +299,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
   testWithTimeLimit("cats effect 3 comprehension 24", 1400) {
     val wait = IO.sleep(500.millis)
     def getImplicit(using i: Int): IO[Int] = wait.map(_ => i)
-    ado {
+    parallelize {
       for {
         _ <- wait.map(_ => 2)
         given Int = 1
@@ -310,7 +310,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 25", 1400) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         (b: Int) = 2
@@ -321,7 +321,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 26", 1400) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         (b: Int) = a
@@ -332,7 +332,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 27", 1400) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -345,7 +345,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 28", 1400) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -358,7 +358,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
 
   testWithTimeLimit("cats effect 3 comprehension 29", 1400) {
     val wait = IO.sleep(500.millis)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -372,7 +372,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
   testWithTimeLimit("cats effect 3 comprehension 30", 1400) {
     val wait = IO.sleep(500.millis)
     case class C(i: Int)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -386,7 +386,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
   testWithTimeLimit("cats effect 3 comprehension 31", 1400) {
     val wait = IO.sleep(500.millis)
     case class C(i: Int)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -402,7 +402,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
     object obj {
       case class AClass[T](t: T)
     }
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -418,7 +418,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
     object obj {
       case class AClass[T](t: T)
     }
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -434,7 +434,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
     object obj {
       case class AClass[T](t: T)
     }
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -448,7 +448,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
   testWithTimeLimit("cats effect 3 comprehension 35", 1400) {
     val wait = IO.sleep(500.millis)
     case class C(i: Int)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -462,7 +462,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
   testWithTimeLimit("cats effect 3 comprehension 36", 1400) {
     val wait = IO.sleep(500.millis)
     case class C(i: Int)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -476,7 +476,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
   testWithTimeLimit("cats effect 3 comprehension 37", 1900) {
     val wait = IO.sleep(500.millis)
     case class C(i: Int)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -491,7 +491,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
   testWithTimeLimit("cats effect 3 comprehension 38", 1900) {
     val wait = IO.sleep(500.millis)
     case class C(i: Int*)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -506,7 +506,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
   testWithTimeLimit("cats effect 3 comprehension 39", 1900) {
     val wait = IO.sleep(500.millis)
     case class C(i: Int)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
@@ -521,7 +521,7 @@ class CatsEffect3Tests extends BaseCatsEffect3Test {
   testWithTimeLimit("cats effect 3 comprehension 40", 1900) {
     val wait = IO.sleep(500.millis)
     case class C(i: Int*)
-    ado {
+    parallelize {
       for {
         a <- wait.map(_ => 1)
         b <- wait.map(_ => 2)
