@@ -78,7 +78,7 @@ lazy val zio2 = projectMatrix
   .settings(
     name := "avocADO-zio-2",
     libraryDependencies ++= Seq(
-      "dev.zio" %%% "zio" % "2.0.22"
+      "dev.zio" %%% "zio" % "2.1.1"
     ),
     scalacOptions := scalacOptions.value.filterNot(_ == "-Xcheck-macros")
   )
