@@ -107,7 +107,7 @@ lazy val zioquery = projectMatrix
   .settings(
     name := "avocADO-zio-query",
     libraryDependencies ++= Seq(
-      "dev.zio" %% "zio-query" % "0.7.2"
+      "dev.zio" %% "zio-query" % "0.7.3"
     ),
     scalacOptions := scalacOptions.value.filterNot(_ == "-Xcheck-macros")
   )
