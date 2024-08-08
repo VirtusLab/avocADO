@@ -1,3 +1,5 @@
+[![avocado Scala version support](https://index.scala-lang.org/virtuslab/avocado/avocado/latest-by-scala-version.svg?platform=jvm)](https://index.scala-lang.org/virtuslab/avocado/avocado)
+
 # avocADO - Safe compile-time parallelization of `for` comprehensions
 
 ## Example
@@ -42,7 +44,7 @@ libraryDependencies ++= Seq(
   "org.virtuslab" %% "avocado" % "version from the badge",
   "org.virtuslab" %% "avocado-cats" % "version from the badge", // for Cats
   "org.virtuslab" %% "avocado-zio-2" % "version from the badge", // for ZIO 2.x
-  "org.virtuslab" %% "avocado-zio-1" % "version from the badge", // for ZIO 1.x
+  "org.virtuslab" %% "avocado-zio-1" % "version from the badge", // for ZIO 1.x,
   "org.virtuslab" %% "avocado-zio-query" % "version from the badge", // for ZIO Query
 )
 ```
