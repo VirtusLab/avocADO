@@ -73,3 +73,32 @@ trait AvocADO[F[_]] {
   def zip[A, B](fa: F[A], fb: F[B]): F[(A, B)]
   def flatMap[A, B](fa: F[A], f: A => F[B]): F[B]
 }
+
+/**
+  * Drops unused trailing map calls in a for-comprehension. Helps with making for-comprehensions stack-safe.
+  * Example usage:
+  * ```scala
+  * dropUnusedMap {
+  *   for {
+  *     a <- doSth()
+  *     _ <- doSideEffectAndReturnUnit(a)
+  *   } yield ()
+  * }
+  * ```
+  *
+  * The above code will be transformed to code essentially equivalent to:
+  * ```scala
+  * doSth().flatMap(a => doSideEffectAndReturnUnit(a))
+  * ```
+  * 
+  * instead of the normal for-comprehension desugaring:
+  * ```scala
+  * doSth().map(a => doSideEffectAndReturnUnit(a)).map(_ => ())
+  * ```
+  * 
+  * Handled cases:
+  * - returning `()` from the for-comprehension, when the last generator expression also binds to `Unit`
+  * - returning the same variable reference as the last generator expression
+  */
+inline def dropUnusedMap[F[_], A](inline comp: F[A]): F[A] =
+  ${ macros.dropUnusedMapImpl[F, A]('comp) }
