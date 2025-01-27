@@ -25,10 +25,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Java 11
+      - name: Setup Java 17
         uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'sbt'
+
+      - name: Setup sbt
+        uses: sbt/setup-sbt@v1
 
       - name: Generate avocADO documentation
         run: sbt avocado3/doc
