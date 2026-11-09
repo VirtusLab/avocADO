@@ -1,4 +1,4 @@
-val scala3 = "3.3.9"
+val scala3 = "3.9.0"
 
 Global / concurrentRestrictions += Tags.limit(Tags.All, 1)
 
